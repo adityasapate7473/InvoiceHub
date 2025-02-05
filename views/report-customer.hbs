@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer List</title>
+    <link rel="stylesheet" href="/css/navbar.css">
+    <link rel="stylesheet" href="/css/report.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.0/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.2.1/Chart.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+       
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("images/background.jpg") no-repeat center center fixed;
+            background-size: cover;
+            opacity: 0.1;
+            z-index: -1;
+        }
+
+        
+
+        .back-btn {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .back-btn button {
+            background-color: #6482AD;
+            color: white;
+            font-size: 16px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .back-btn button:hover {
+            background-color: #516F8A;
+        }
+        .customer-table a{
+            text-decoration: none;
+            font-weight: 400;
+            color: white;
+            background-color: #6482AD;
+            padding: 8px;
+            border-radius: 5px;
+        }
+        .customer-table a:hover{
+            color: wheat;
+            
+        }
+    </style>
+</head>
+
+<body>
+    {{> navbar}}
+    <div class="container">
+        <h1>Customer List</h1>
+
+        <!-- Customer Table -->
+        <table class="customer-table">
+            <thead>
+                <tr>
+                    <th>Customer ID</th>
+                    <th>Customer Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>City</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="customer-list">
+                <!-- List of customers will be dynamically populated here -->
+            </tbody>
+        </table>
+
+        <!-- Back Button -->
+        <div class="back-btn">
+            <button onclick="window.history.back()">Go Back</button>
+        </div>
+    </div>
+
+    <script>
+        // Fetch and display the list of customers
+        // Fetch and display the list of customers
+        async function fetchCustomers() {
+            try {
+                const response = await fetch('/customers'); // Replace with your API endpoint
+                const data = await response.json();
+                console.log('Fetched customers:', data);  // Log the raw response
+
+                // Check if the response contains a 'customers' property with an array
+                const customerListElement = document.getElementById('customer-list');
+                customerListElement.innerHTML = ''; // Clear previous results
+
+                if (data.success && Array.isArray(data.customers)) {
+                    data.customers.forEach(customer => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                    <td>${customer.customerId}</td>
+                    <td>${customer.customerName}</td>
+                    <td>${customer.email}</td>
+                    <td>${customer.phone}</td>
+                    <td>${customer.city}</td>
+                    <td><a onclick="getcustomer('${customer.customerId}')">View Report</a></td>
+                `;
+                        customerListElement.appendChild(row);
+                    });
+                } else {
+                    console.error('Unexpected response structure:', data);
+                    alert('Failed to load customer data.');
+                }
+
+            } catch (error) {
+                console.error('Error fetching customers:', error);
+            }
+        }
+
+        // Call the function to fetch customers when the page loads
+        fetchCustomers();
+
+        function getcustomer(customerId) {
+            window.location.href = `/customer-report/${customerId}`;
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,158 @@
+    /* Global Styling */
+    * {
+        font-family: 'Poppins', sans-serif;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    
+    body {
+        background-color: #F5EDED;
+        padding: 0;
+    }
+
+    .container {
+        max-width: 90%;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #E2DAD6;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        position: relative;
+        /* This is to allow absolute positioning of the button */
+    }
+
+    /* Header Styling */
+    h4 {
+        color: #6482AD;
+        font-weight: 600;
+        font-size: 25px;
+        text-align: center;
+        /* Centering the header */
+        margin-top: 0;
+        /* Ensures h4 is at the top */
+        margin-bottom: 30px;
+    }
+
+    /* Product Registration Section */
+    .section {
+        background-color: #FFFFFF;
+        padding: 30px;
+        margin-bottom: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    label {
+        font-weight: 500;
+        color: #6482AD;
+        margin-bottom: 5px;
+    }
+
+    input,
+    button {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        outline: none;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+        font-size: 16px;
+        background-color: #f9f9f9;
+    }
+
+    input:focus {
+        border-color: #6482AD;
+        box-shadow: 0 0 5px rgba(100, 130, 173, 0.5);
+    }
+
+    button {
+        background-color: #6482AD;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    button:hover {
+        background-color: #7FA1C3;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    #product-id-section {
+        display: none;
+        background-color: #E2DAD6;
+        padding: 20px;
+        margin-top: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    #product-id-section h3 {
+        color: #4CAF50;
+        font-size: 24px;
+    }
+
+    #product-id-section p {
+        font-size: 18px;
+        color: #333;
+    }
+
+    .form-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .form-group {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Responsive Design */
+    @media screen and (max-width: 768px) {
+        .form-row {
+            flex-direction: column;
+        }
+
+        input,
+        button {
+            width: 100%;
+        }
+    }
+
+    /* Product List Button */
+    .product-list-btn {
+        position: absolute;
+        top: 10px;
+        right: 20px;
+        padding: 8px 16px;
+        background-color: #6482AD;
+        color: white;
+        font-size: 14px;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+        width: 120px;
+        /* Set minimum width */
+    }
+
+    .product-list-btn:hover {
+        background-color: #516F8A;
+    }
+
+    input[readonly] {
+        background-color: #f0f0f0;
+        /* Light gray background */
+        cursor: not-allowed;
+        /* Change cursor to indicate it's not editable */
+    }

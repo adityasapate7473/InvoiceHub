@@ -1,0 +1,437 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Print GST Bill</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="/css/print-bill.css">
+</head>
+
+<body>
+    <div id="bill-container" class="container">
+        <h2 class="text-left mb-2">Tax Invoice</h2>
+
+        <!-- Owner Details Section -->
+
+
+        <div class="owner-details">
+            <div class="business-name">
+                <h2 id="businessname"></h2>
+            </div>
+            <div class="owner-info">
+                <div class="owner-row">
+                    <span id="address"></span><span id="city"></span><span id="district"></span><span id="state"></span>
+                </div>
+                <div class="owner-row">
+                    <span id="email"></span> | <span id="phone"></span>
+                </div>
+                <div class="owner-row">
+                    <span id="gstNumber"></span>
+                    <span id="panNumber"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="invoice-details" id="bill-details" class="row mb-4">
+            <div class="col-sm-6 section">
+                <p>Invoice No: <span id="invoice-no"></span></p>
+                <p>Date: <span id="date"></span></p>
+            </div>
+            <div class="col-sm-6 section" style="border-left: none;">
+                <p>Challan No: <span id="challan-no"></span></p>
+                <p>PO No(s): <span id="po-no"></span></p>
+            </div>
+        </div>
+
+        <div class="containerinvoice">
+            <!-- Buyer Section -->
+            <div class="section">
+                <span class="label">Buyer:</span>
+                <p class="buy" id="customer-name"> XXXXXXXXXXXXXXXX</p>
+
+                <div class="customer-details">
+                    <p id="customer-address">XXXXXXXXXXXXX</p>
+                    <p id="customer-city">XXXXXXXXXXXXX</p>
+                    <p id="customer-district">XXXXXXXXXXXXX</p>
+                    <p id="customer-state">XXXXXXXXXXXXX</p>
+                    <p>INDIA - </p>
+                    <p id="customer-pincode">XXXXXX</p>
+
+                </div>
+
+                <div class="business-details">
+                    <div>
+                        <p class="info">GST NO.:<label class="label" id="customer-gst"></label></p>
+                        <p class="info">Reg.Type:<label class="label" id="customer-reg"></label></p>
+                    </div>
+                    <div>
+                        <p class="info">PAN NO.:<label class="label" id="customer-pan"></label></p>
+                        <p class="info">State Code:<label class="label" id="customer-stateCode"></label></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Consignee Section -->
+            <div class="section" style="border-left: none;">
+                <span class="label">Consignee:</span>
+                <p id="consignee-name"> XXXXXXXXXXXXXXXX</p>
+                <div class="customer-details">
+                    <p id="consignee-address">XXXXXXXXXXXXX</p>
+                    <p id="consignee-city">XXXXXXXXXXXXX</p>
+                    <p id="consignee-district">XXXXXXXXXXXXX</p>
+                    <p id="consignee-state">XXXXXXXXXXXXX</p>
+                    <p>INDIA - </p>
+                    <p id="consignee-pincode">XXXXXX</p>
+                </div>
+
+                <div class="business-details">
+                    <div>
+                        <p class="info">GST NO.:<label class="label" id="consignee-gst"></label></p>
+                        <p class="info">Reg.Type:<label class="label" id="consignee-reg"></label></span></p>
+                    </div>
+                    <div>
+                        <p class="info">PAN NO.:<label class="label" id="consignee-pan"></label></p>
+                        <p class="info">State Code:<label class="label" id="consignee-stateCode"></label></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <table id="product-table" class="table table-bordered mb-1">
+            <thead class="bg-primary text-light">
+                <tr>
+                    <th>Serial</th>
+                    <th>Item Code</th>
+                    <th>Product Name</th>
+                    <th>HSN</th>
+                    <th>Quantity</th>
+                    <th>Units</th>
+                    <th>Rate</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+            <tfoot>
+                <tr>
+                    <td></td>
+                    <td></td>
+
+                    <td colspan="2">Total Quantity : </td>
+                    <td id="total-quantity">0</td>
+                    <td colspan="2">Total Amount : </td>
+                    <td id="total-amount">0.00</td>
+                </tr>
+            </tfoot>
+        </table>
+        <div id="amount-section">
+            <div id="amount-in-words-container">
+                <label>Amount in Words :</label><br>
+                <span id="amount-in-words">Zero Rupees Only</span>
+            </div>
+
+            <table id="amount-table">
+                <tr>
+                    <td colspan="2">CGST :</td>
+                    <td><span id="cgst-amount">0.00</span></td>
+                </tr>
+                <tr>
+                    <td colspan="2">SGST :</td>
+                    <td><span id="sgst-amount">0.00</span></td>
+                </tr>
+                <tr>
+                    <td colspan="2">Round Off Amount :</td>
+                    <td><span id="roundoff-amount">0.00</span></td>
+                </tr>
+                <tr style="border-bottom: none;">
+                    <td colspan="2" style="font-weight: bold;">Grand Total :</td>
+                    <td><span id="grand-total">0.00</span></td>
+                </tr>
+            </table>
+        </div>
+
+
+        <!-- Transporter Section -->
+        <div class="transporter" id="bill-details" class="row">
+            <div class="col-sm-6 section">
+                <p>Transporter Name: <span id="transporter-name"></span></p>
+            </div>
+            <div class="col-sm-6 section" style="border-left: none;">
+                <p>Vehicle Number: <span id="vehicle-number"></span></p>
+            </div>
+        </div>
+
+
+        <!-- Signature Section -->
+        <div class="signature-section mb-2">
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="signature-box">
+                        <p><strong>Receiver's Signature</strong></p>
+                        <div class="signature-placeholder">
+                            <span>______________</span>
+                        </div>
+                        <p class="signature-date text-muted">Date: <span id="receiver-date"></span></p>
+                    </div>
+                </div>
+
+                <div class="col-sm-6">
+                    <div class="signature-box">
+                        <p><strong>Authorized Signature</strong></p>
+                        <div class="signature-placeholder">
+                            <span>______________</span>
+                        </div>
+                        <p class="signature-date text-muted">Date: <span id="authorized-date"></span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="print-buttons text-center">
+            <button class="btn btn-primary btn-print" onclick="printBill()">Print Bill</button>
+            <button class="btn btn-secondary" onclick="window.history.back()">Go Back</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        // Function to fetch owner details after login
+        function fetchOwnerDetails() {
+            fetch('/get-profile')
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    console.log(response);
+                    return response.json();
+                })
+                .then((data) => {
+                    if (!data) {
+                        throw new Error('Profile data is missing in the response');
+                    }
+
+                    console.log("Fetched profile data: ", data);
+
+                    // Set data into respective fields
+                    document.getElementById('businessname').innerText = data.businessName || 'Default Business Name';
+                    document.getElementById('address').innerText = data.address || 'Address not provided';
+                    document.getElementById('city').innerText = data.city || 'City not provided';
+                    document.getElementById('district').innerText = data.district || 'District not provided';
+                    document.getElementById('state').innerText = data.state || 'State not provided';
+                    document.getElementById('email').innerText = data.email || 'Email not provided';
+
+                    // Add +91 prefix to phone if it's not already present
+                    const phone = data.phone ? data.phone.trim() : 'Phone not provided';
+                    const formattedPhone = phone.startsWith('+91') ? phone : `+91 ${phone}`;
+                    document.getElementById('phone').innerText = formattedPhone;
+
+                    document.getElementById('gstNumber').innerText = `GST: ${data.gstNumber || 'Not provided'}`;
+                    document.getElementById('panNumber').innerText = `PAN: ${data.panNumber || 'Not provided'}`;
+                })
+                .catch((error) => {
+                    console.error('Error fetching owner details:', error);
+                    alert('Failed to fetch profile details. Please try again.');
+                });
+        }
+        fetchOwnerDetails();
+
+        async function fetchBillDetails(billId) {
+            try {
+                const response = await fetch(`/get-bill/${billId}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch bill details');
+                }
+
+                const data = await response.json();
+                if (data.success) {
+                    const bill = data.bill;
+
+                    // Populate basic details
+                    document.getElementById('invoice-no').textContent = bill.invoiceNo || '';
+                    document.getElementById('challan-no').textContent = bill.challanNo || '';
+                    document.getElementById('po-no').textContent = bill.poNumbers || ' ';
+                    document.getElementById('date').textContent = new Date(bill.date).toLocaleDateString();
+
+                    // Populate customer and transporter details
+                    document.getElementById('customer-name').textContent = bill.customer.name || '';
+                    document.getElementById('customer-address').textContent = bill.customer.street || '';
+                    document.getElementById('customer-city').textContent = bill.customer.city || '';
+                    document.getElementById('customer-district').textContent = bill.customer.district || '';
+                    document.getElementById('customer-state').textContent = bill.customer.state || '';
+                    document.getElementById('customer-gst').textContent = bill.customer.gstNumber || '';
+                    document.getElementById('customer-pan').textContent = bill.customer.pan || '';
+                    document.getElementById('customer-reg').textContent = bill.customer.registrationType || '';
+                    document.getElementById('customer-stateCode').textContent = bill.customer.stateCode || '';
+                    document.getElementById('customer-pincode').textContent = bill.customer.pincode || '';
+
+                    document.getElementById('consignee-name').textContent = bill.customer.name || '';
+                    document.getElementById('consignee-address').textContent = bill.customer.street || '';
+                    document.getElementById('consignee-city').textContent = bill.customer.city || '';
+                    document.getElementById('consignee-district').textContent = bill.customer.district || '';
+                    document.getElementById('consignee-state').textContent = bill.customer.state || '';
+                    document.getElementById('consignee-gst').textContent = bill.customer.gstNumber || '';
+                    document.getElementById('consignee-pan').textContent = bill.customer.pan || '';
+                    document.getElementById('consignee-reg').textContent = bill.customer.registrationType || '';
+                    document.getElementById('consignee-stateCode').textContent = bill.customer.stateCode || '';
+                    document.getElementById('consignee-pincode').textContent = bill.customer.pincode || '';
+
+                    document.getElementById('transporter-name').textContent = bill.transporter.name || '';
+                    document.getElementById('vehicle-number').textContent = bill.transporter.vehicleNumber || '';
+
+
+                    // Check if the products array exists and has data
+                    if (bill.products && bill.products.length > 0) {
+                        // Populate product table
+                        const productTableBody = document.getElementById('product-table').getElementsByTagName('tbody')[0];
+                        productTableBody.innerHTML = ''; // Clear existing rows
+
+                        bill.products.forEach((product, index) => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${product.itemCode || ''}</td>
+                        <td>${product.productName || ''}</td>
+                        <td>${product.hsnCode || ''}</td>
+                        <td>${product.quantity || ''}</td>
+                        <td>${product.units || ''}</td>
+                        <td>${'₹ ' + product.rate || ''}</td>
+                        <td>${'₹ ' + (product.rate * product.quantity).toFixed(2)}</td>
+                    `;
+                            productTableBody.appendChild(row);
+                        });
+
+                        document.getElementById('total-quantity').textContent = bill.totalQuantity;
+
+                        // Populate total amounts with rupee symbol and space
+                        document.getElementById('total-amount').textContent = '₹ ' + (bill.totalAmount.toFixed(2) || '0.00');
+                        document.getElementById('cgst-amount').textContent = '₹ ' + (bill.cgstAmount.toFixed(2) || '0.00');
+                        document.getElementById('sgst-amount').textContent = '₹ ' + (bill.sgstAmount.toFixed(2) || '0.00');
+                        document.getElementById('roundoff-amount').textContent = '₹ ' + (bill.roundOffAmount.toFixed(2) || '0.00');
+                        document.getElementById('grand-total').textContent = '₹ ' + (bill.grandTotal.toFixed(2) || '0.00');
+                        document.getElementById('amount-in-words').textContent = 'Rupees ' + (bill.amountInWords) || 'Zero';
+
+                    } else {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'No Products Found',
+                            text: 'No products found in this bill.',
+                        });
+                    }
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message || 'Failed to fetch bill details',
+                    });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred while fetching bill details.',
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            let billId;
+
+            // Check if billId is in the query string
+            const urlParams = new URLSearchParams(window.location.search);
+            billId = urlParams.get('billId');
+
+            // If not in the query string, try extracting from the path
+            if (!billId) {
+                const path = window.location.pathname;
+                const parts = path.split('/');
+                billId = parts[2]; // Assuming the billId is the third segment
+            }
+
+            if (!billId) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No Bill ID found in the URL.',
+                });
+                return;
+            }
+
+            fetchBillDetails(billId);
+        });
+
+
+        function closePage() {
+            window.location.href = '/bill-list'; // Replace '/bill-list' with the actual URL of your bill-list page
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // Function to generate the print filename dynamically using invoice date
+        function getPrintFilename() {
+            const username = document.getElementById('customer-name').textContent || 'username';
+            const invoiceDate = new Date(document.getElementById('date').textContent || Date.now());
+
+            // Format date to dd-yy-mm
+            const formattedDate = invoiceDate.toLocaleDateString('en-GB').replace(/\//g, '-'); // en-GB gives dd/mm/yyyy format, then replace slashes
+
+            const invoiceNo = document.getElementById('invoice-no').textContent || '0000';
+
+            return `${username}@${formattedDate}#${invoiceNo}`;
+        }
+
+
+        // Function to trigger print directly without the popup buttons
+        function printBill() {
+            const filename = getPrintFilename();
+
+            // Show a loading popup (optional, to notify the user that the print dialog will open)
+            Swal.fire({
+                title: 'Preparing your bill...',
+                text: `Your bill will be printed with the name: ${filename}`,
+                icon: 'info',
+                showConfirmButton: false,
+                allowOutsideClick: false, // Prevent closing the popup by clicking outside
+                didOpen: () => {
+                    // Switch to the 'loading' icon after the popup opens
+                    const swalIcon = document.querySelector('.swal2-icon');
+                    swalIcon.classList.add('swal2-loading');
+                },
+                timer: 2000, // Show the popup for 2 seconds before closing
+                willClose: () => {
+                    // After the popup closes, set the document title
+                    document.title = filename;
+
+                    // Set a small timeout to ensure content is loaded before triggering print
+                    setTimeout(() => {
+                        window.print(); // Trigger the print dialog
+                    }, 500); // 500ms delay to ensure content is fully rendered
+                }
+            });
+        }
+
+
+        // Attach the printBill function to the print button
+        document.addEventListener('DOMContentLoaded', function () {
+            const printButton = document.querySelector('.btn-print');
+            if (printButton) {
+                printButton.addEventListener('click', printBill);
+            }
+        });
+    </script>
+
+</body>
+
+</html>

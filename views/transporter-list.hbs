@@ -1,0 +1,177 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transporter List</title>
+    <link rel="stylesheet" href="/css/navbar.css">
+    <link rel="stylesheet" href="/css/product-list.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("images/background.jpg") no-repeat center center fixed;
+            background-size: cover;
+            opacity: 0.1;
+            z-index: -1;
+        }
+    </style>
+</head>
+
+<body>
+    {{> navbar}}
+    <div class="container">
+        <button class="transporter-list-btn" onclick="window.location.href='/register-transporter'">Transporter Registration</button>
+        <h1>Transporter List</h1>
+        <table id="transporterTable">
+            <thead>
+                <tr>
+                    <th>Transporter Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Vehicle Number</th>
+                    <th>State</th>
+                    <th>District</th>
+                    <th>City</th>
+                    <th>Pincode</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Dynamic rows will be inserted here -->
+            </tbody>
+        </table>
+        <p class="no-transporter" id="noTransporterMessage" style="display: none;">No transporters found.</p>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // Fetch and display transporter data
+        async function fetchTransporters() {
+            try {
+                const response = await fetch('/get-transporters', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                const data = await response.json();
+                const transporterTableBody = document.querySelector('#transporterTable tbody');
+                const noTransporterMessage = document.getElementById('noTransporterMessage');
+
+                if (data.success) {
+                    if (data.transporters.length > 0) {
+                        transporterTableBody.innerHTML = '';
+                        noTransporterMessage.style.display = 'none';
+
+                        data.transporters.forEach(transporter => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                            <td>${transporter.transporterName}</td>
+                            <td>${transporter.email}</td>
+                            <td>${transporter.phone}</td>
+                            <td>${transporter.vehicleNumber}</td>
+                            <td>${transporter.state}</td>
+                            <td>${transporter.district}</td>
+                            <td>${transporter.city}</td>
+                            <td>${transporter.pincode}</td>
+                            <td>
+                                <button onclick="editTransporter('${transporter._id}')">Edit</button>
+                                <button onclick="deleteTransporter('${transporter._id}')">Delete</button>
+                            </td>
+                        `;
+                            transporterTableBody.appendChild(row);
+                        });
+
+                    } else {
+                        transporterTableBody.innerHTML = '';
+                        noTransporterMessage.style.display = 'block';
+                    }
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message || 'Failed to fetch transporters.',
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching transporters:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred while fetching transporters.',
+                });
+            }
+        }
+
+        // Redirect to the edit page with the transporter ID
+        function editTransporter(transporterId) {
+            Swal.fire({
+                icon: 'info',
+                title: 'Redirecting...',
+                text: `Redirecting to edit page for transporter ID: ${transporterId}`,
+                timer: 1500,
+                showConfirmButton: false,
+            }).then(() => {
+                window.location.href = `/edit-transporter?transporterId=${transporterId}`;
+            });
+        }
+
+        // Delete transporter after confirmation
+        async function deleteTransporter(transporterId) {
+            const result = await Swal.fire({
+                title: 'Are you sure?',
+                text: 'You won\'t be able to revert this!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!',
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch(`/delete-transporter/${transporterId}`, {
+                        method: 'DELETE',
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Deleted!',
+                            text: 'Transporter has been deleted.',
+                        });
+                        fetchTransporters(); // Refresh the list after deletion
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to delete the transporter.',
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error deleting transporter:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An error occurred while deleting the transporter.',
+                    });
+                }
+            }
+        }
+
+        // Fetch transporters when the page loads
+        window.onload = fetchTransporters;
+    </script>
+
+</body>
+
+</html>

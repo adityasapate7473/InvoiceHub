@@ -1,0 +1,127 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Change Password</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("images/background.jpg") no-repeat center center fixed;
+            background-size: cover;
+            opacity: 0.1;
+            z-index: -1;
+        }
+        .input-field {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <img src="images/logo_r.png" alt="InvoiceHub Logo" class="logo">
+            <h2>Change Password</h2>
+            <form id="changePasswordForm">
+                    <input type="hidden" id="emailInput" name="email" value="">
+                <div class="input-field">
+                    <input type="password" id="newPassword" name="newPassword" placeholder="Enter New Password" required>
+                    <i class="fas fa-eye toggle-password" onclick="togglePasswordVisibility('newPassword')"></i>
+                </div>
+                <div class="input-field">
+                    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm New Password" required>
+                    <i class="fas fa-eye toggle-password" onclick="togglePasswordVisibility('confirmPassword')"></i>
+                </div>
+                <button type="submit">Change Password</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+         function togglePasswordVisibility(inputId) {
+            const input = document.getElementById(inputId);
+            const icon = input.nextElementSibling;
+
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            } else {
+                input.type = "password";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
+            }
+        }
+    </script>
+    <script>
+        document.getElementById('changePasswordForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const params = new URLSearchParams(window.location.search);
+            const email = params.get('email'); // Pass email from previous page
+
+            if (newPassword !== confirmPassword) {
+                return swal.fire({
+                    icon: 'error',
+                    title: 'Passwords do not match',
+                    text: 'Please ensure both passwords are the same.',
+                });
+            }
+
+            try {
+                const response = await fetch('/changePassword', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, newPassword })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    swal.fire({
+                        icon: 'success',
+                        title: 'Password Changed Successfully',
+                        text: result.msg,
+                    }).then(() => {
+                        window.location.href = '/login'; // Redirect to login or dashboard
+                    });
+                } else {
+                    const error = await response.json();
+                    swal.fire({
+                        icon: 'error',
+                        title: 'Password Change Failed',
+                        text: error.msg || 'Something went wrong.',
+                    });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                swal.fire({
+                    icon: 'error',
+                    title: 'Unexpected Error',
+                    text: 'An unexpected error occurred. Please try again.',
+                });
+            }
+        });
+    </script>
+</body>
+</html>

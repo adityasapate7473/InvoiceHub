@@ -1,0 +1,114 @@
+<header class="navbar">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="icon" type="icon" href="images/icon_r.png">
+
+  <div class="navbar-container">
+    <div class="logo">InvoiceHub</div>
+    <nav class="nav-links" id="nav-links">
+      <ul>
+        <!-- Dashboard -->
+        <li><a href="/home"><i class="fa-solid fa-tachometer-alt"></i> Dashboard</a></li>
+
+        <!-- Registration Dropdown -->
+        <li class="dropdown">
+          <a href="#" class="rotate-link">
+            <i class="fa-solid fa-user-plus"></i> Registration <i class="fa-solid fa-chevron-down icon"></i>
+          </a>
+          <div class="dropdown-content">
+            <a href="/register-customer"><i class="fa-solid fa-users-cog"></i> Customer</a>
+            <a href="/register-product"><i class="fa-solid fa-box-open"></i> Product</a>
+            <a href="/register-transporter"><i class="fa-solid fa-shipping-fast"></i> Transporter</a>
+          </div>
+        </li>
+
+        <!-- Generate Bill Dropdown -->
+        <li class="dropdown">
+          <a href="#" class="rotate-link">
+            <i class="fa-solid fa-calculator"></i> Generate Bill <i class="fa-solid fa-chevron-down icon"></i>
+          </a>
+          <div class="dropdown-content">
+            <a href="/generate-gst-bill"><i class="fa-solid fa-file-signature"></i> GST Bills</a>
+            <a href="/generate-non-gst-bill"><i class="fa-solid fa-file-invoice-dollar"></i> Non-GST Bills</a>
+          </div>
+        </li>
+
+        <!-- Reports Dropdown -->
+        <li class="dropdown">
+          <a href="#" class="rotate-link">
+            <i class="fa-solid fa-chart-pie"></i> Reports <i class="fa-solid fa-chevron-down icon"></i>
+          </a>
+          <div class="dropdown-content">
+            <a href="/report-gst-bill"><i class="fa-solid fa-file-invoice"></i> Bill</a>
+            <a href="/report-sales"><i class="fa-solid fa-chart-line"></i> Sales Reports</a>
+            <a href="/report-tax"><i class="fa-solid fa-file-alt"></i> Tax Summaries</a>
+            <a href="/report-customer"><i class="fa-solid fa-user-friends"></i> Customer</a>
+            <a href="/reports-transporter"><i class="fa-solid fa-truck-moving"></i> Transporter</a>
+            <a href="/reports-product"><i class="fa-solid fa-box-open"></i> Product</a>
+          </div>
+        </li>
+
+        <!-- User Dropdown -->
+        <li>
+          <div class="user-info">
+            <div class="dropdown user-dropdown rotate-link">
+              <span class="rotate-link">
+                <i class="fa-solid fa-user-circle"></i> <strong>Welcome, {{userName}}!</strong>
+              </span>
+              <span class="user-btn"><i class="fa-solid fa-circle-chevron-down icon"></i></span>
+              <div class="dropdown-content" style="width: 210px; z-index:1000">
+                <a href="/profile"><i class="fa-solid fa-id-badge"></i> Profile</a>
+                <a href="/settings"><i class="fa-solid fa-gear"></i> Settings</a>
+                <a href="/logout" class="logout-btn"><i class="fa-solid fa-sign-out-alt"></i> Logout</a>
+              </div>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </nav>
+  </div>
+
+  <!-- Hamburger Menu -->
+  <div class="hamburger" id="hamburger-menu">
+    ☰
+  </div>
+</header>
+
+<div class="content">
+  {{!-- <p>Your content starts here...</p> --}}
+</div>
+
+
+<script>
+  // Hamburger menu toggle
+  document.getElementById('hamburger-menu').addEventListener('click', function () {
+    const navLinks = document.getElementById('nav-links');
+    navLinks.classList.toggle('active');
+  });
+
+  // User dropdown toggle
+  document.querySelector('.user-btn').addEventListener('click', function () {
+    const dropdown = document.querySelector('.user-dropdown .dropdown-content');
+    dropdown.classList.toggle('active');
+  });
+
+  // Close the dropdown if clicking outside
+  document.addEventListener('click', function (event) {
+    const dropdown = document.querySelector('.user-dropdown .dropdown-content');
+    const userButton = document.querySelector('.user-btn');
+
+    if (!userButton.contains(event.target) && !dropdown.contains(event.target)) {
+      dropdown.classList.remove('active');
+    }
+  });
+
+  // Display only the first word of the username
+  document.addEventListener("DOMContentLoaded", function () {
+    const fullName = '{{userName}}';  // Full username (you can fetch this dynamically from your backend)
+    const firstName = fullName.split(' ')[0];  // Get the first word
+    const userNameElement = document.querySelector('.user-info span strong');
+
+    if (userNameElement) {
+      userNameElement.textContent = `Welcome, ${firstName}!`;  // Display first word of the username
+    }
+  });
+</script>

@@ -1,0 +1,100 @@
+/* Apply Poppins font family */
+body {
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Container to center the table with 90% width */
+.table-container {
+    width: 90%;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Heading Style */
+h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* Table Styles */
+table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+th, td {
+    padding: 12px;
+    text-align: center;
+    border: 1px solid #E2DAD6;
+}
+
+th {
+    background-color: #6482AD;
+    color: white;
+    font-weight: bold;
+}
+
+td {
+    background-color: #F5EDED;
+}
+
+/* Table Row Hover Effect */
+tr:hover {
+    background-color: #E2DAD6;
+}
+
+/* Button Styles */
+button {
+    padding: 8px 16px;
+    margin: 5px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+/* Button - Print */
+button:nth-child(1) {
+    background-color: #6482AD;
+    color: white;
+}
+
+button:nth-child(1):hover {
+    background-color: #7FA1C3;
+}
+
+/* Button - Edit */
+button:nth-child(2) {
+    background-color: #E2DAD6;
+    color: #333;
+}
+
+button:nth-child(2):hover {
+    background-color: #D0C3B5;
+}
+
+/* Button - Delete */
+button:nth-child(3) {
+    background-color: #F5EDED;
+    color: #333;
+}
+
+button:nth-child(3):hover {
+    background-color: #E2DAD6;
+}
+
+/* Optional Responsive Styling for Smaller Screens */
+@media (max-width: 768px) {
+    table {
+        font-size: 12px;
+    }
+
+    button {
+        font-size: 12px;
+        padding: 6px 12px;
+    }
+}

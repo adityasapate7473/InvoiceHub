@@ -1,0 +1,534 @@
+/* General Bill Page Styles */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #ffffff;
+    color: #6482AD;
+}
+
+#bill-container {
+    margin: 5px auto;
+    
+    padding: 15px;
+    padding-bottom: 5px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    border: 1px solid #7FA1C3;
+    border-radius: 2px;
+}
+
+h2,
+h3 {
+    color: #6482AD;
+}
+
+h2 {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+h3 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 0;
+}
+
+p {
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+#product-table {
+    font-size: 14px;
+    color: #6482AD;
+    border: 1px solid #7FA1C3;
+    border-radius: 8px;
+    margin: 0;
+}
+
+#product-table th {
+    background-color: #7FA1C3;
+    color: #fff;
+    text-transform: uppercase;
+    border: 1px solid #7FA1C3;
+}
+
+#product-table td {
+    
+    border: 1px solid #7FA1C3;
+}
+
+#product-table tfoot {
+    font-weight: bold;
+    background-color: #E2DAD6;
+    border-top: 1px solid #7FA1C3;
+    text-align: left;
+    font-size: 1rem;
+}
+
+.print-buttons .btn {
+    font-size: 16px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    margin-bottom: 0;
+}
+
+.btn-primary {
+    background-color: #6482AD;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #7FA1C3;
+}
+
+.btn-secondary {
+    background-color: #ffffff;
+    border: 1px solid #6482AD;
+    color: #6482AD;
+}
+
+.btn-secondary:hover {
+    
+}
+
+/* Style for the amounts-section */
+.amounts-section {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* Table Styling */
+#amount-table {
+    width: 100%;
+    border-top: 1px solid #7FA1C3;
+    border-right: 1px solid #7FA1C3;
+    border-bottom: none;
+    border-left: 1px solid #7FA1C3;
+    text-align: left;
+    border-collapse: collapse;
+    border-spacing: 0;
+    border-radius: 8px;
+    margin-bottom: 0;
+    font-size: 10px;
+}
+
+/* Container for the Amount section */
+#amount-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    /* Ensure both items stretch to the same height */
+    border: 1px solid #7FA1C3;
+    /* Space between the words and table */
+    margin: 5px 0;
+    /* Space around the section */
+    width: 100%;
+}
+
+/* Styling for the Amount in Words container */
+#amount-in-words-container {
+    flex: 2;
+    /* Take up available space to the left */
+    max-width: 50%;
+    /* Ensure it doesn't exceed half the width */
+    padding: 10px;
+    
+    /* Background color for distinction */
+    font-size: 14px;
+    font-weight: bold;
+    color: #6482AD;
+}
+
+#amount-in-words-container label {
+    font-weight: 100;
+}
+
+/* Styling for the table */
+#amount-table {
+    flex: 1;
+    /* Take up remaining space */
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    color: #6482AD;
+    border-left: 1px solid #7FA1C3;
+    /* Keep only the left border */
+    border-top: none;
+    border-right: none;
+}
+
+#amount-table td {
+    padding: 5px;
+    border: 1px solid #7FA1C3;
+    text-align: left;
+    border-right: none;
+}
+
+#amount-table tr:last-child td {
+    font-weight: bold;
+    font-size: 16px;
+    border-bottom: none;
+    border-right: none;
+}
+
+#amount-table tr:first-child td {
+    border-top: none;
+}
+
+
+/* First Column (Amount in Words) - No Left Border */
+td:first-child {
+    border: none;
+}
+
+td {
+    border: 1px solid #7FA1C3;
+    /* Remove border from the first column's left side */
+}
+
+tr:first-child td {
+    border-right: none;
+    border-top: none;
+    border-bottom: none;
+}
+
+tr:last-child td {
+    border-right: none;
+    border-top: none;
+    border-bottom: none;
+}
+
+/* Table Cell Styling */
+td {
+    padding: 5px;
+    font-size: 14px;
+    /* Add border to individual cells */
+
+}
+
+/* Label Styling */
+label {
+    font-weight: bold;
+}
+
+#amount-table {
+    /* Prevent wrapping and handle overflow for last and second-last columns */
+    td:nth-last-child(1),
+    /* Last column */
+    td:nth-last-child(2),
+    /* Second-last column */
+    th:nth-last-child(1),
+    th:nth-last-child(2) {
+        white-space: nowrap;
+        /* Prevent text wrapping */
+        overflow: hidden;
+        /* Hide overflow content */
+    }
+}
+
+/* Styling for the Amount in Words */
+#amount-in-words {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+/* Styling for the CGST, SGST, and Grand Total */
+span {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+/* Transporter Section */
+.transporter {
+    display: flex;
+    justify-content: space-around;
+    border-bottom: 1px solid #7FA1C3;
+}
+
+.transporter p {
+    font-size: 14px;
+    font-weight: 100;
+}
+
+.transporter p:last-child {
+    border-right: none;
+}
+
+/* Signature Section */
+.signature-box {
+    margin-top: 5px;
+    padding: 5px;
+    border: 1px solid #7FA1C3;
+    text-align: center;
+    
+}
+
+.signature-box p {
+    font-size: 14px;
+    color: #6482AD;
+}
+
+.signature-placeholder {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.signature-date {
+    font-size: 14px;
+    color: #9E9E9E;
+    text-align: left;
+}
+
+.owner-details {
+    text-align: center;
+    width: 100%;
+}
+
+.business-name h2 {
+    font-size: 30px;
+    font-weight: bold;
+    color: #333;
+    text-transform: uppercase;
+    border-top: 1px solid #7FA1C3;
+    border-right: 1px solid #7FA1C3;
+    border-bottom: none;
+    border-left: 1px solid #7FA1C3;
+    padding: 10px;
+    margin-bottom: 0;
+}
+
+.owner-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    border-top: 1px solid #7FA1C3;
+    border-right: 1px solid #7FA1C3;
+    border-bottom: none;
+    border-left: 1px solid #7FA1C3;
+}
+
+.owner-row {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    color: #555;
+}
+
+.owner-row span {
+    text-align: center;
+    font-size: 14px;
+
+}
+
+.invoice-details {
+    display: flex;
+    justify-content: space-around;
+}
+
+/* Hide elements in print */
+@media print {
+    .print-buttons {
+        display: none;
+    }
+}
+
+@media print {
+
+    /* Reduce general font sizes for printing even more */
+    body {
+        font-size: 10px;
+        /* smaller font size for the body */
+    }
+
+    h2,
+    h3 {
+        font-size: 12px;
+        /* even smaller font sizes for headings */
+    }
+
+    p {
+        font-size: 10px;
+        /* smaller font size for paragraphs */
+    }
+
+    #product-table {
+        font-size: 12px;
+        /* smaller font size for the table */
+    }
+
+    #product-table th,
+    #product-table td {
+        font-size: 12px;
+        /* smaller font size for table cells */
+    }
+
+    #amount-table {
+        font-size: 10px;
+    }
+
+    .amounts-section td {
+        font-size: 10px;
+        /* smaller font size for amount table */
+    }
+
+    .transporter p {
+        font-size: 10px;
+        /* smaller font size for transporter section */
+    }
+
+    .signature-section h3 {
+        font-size: 12px;
+        /* smaller font size for signature heading */
+    }
+
+    .signature-box p {
+        font-size: 10px;
+        /* smaller font size for signature box */
+    }
+
+    .owner-details .business-name h2 {
+        font-size: 18px;
+        /* smaller font size for business name */
+    }
+
+    .owner-info .owner-row span {
+        font-size: 10px;
+        /* smaller font size for owner row */
+    }
+
+    .invoice-details {
+        font-size: 10px;
+        /* smaller font size for invoice details */
+    }
+
+    .invoice-details span {
+        margin-left: 0;
+    }
+
+    .containerinvoice p {
+        font-size: 10px;
+        /* smaller font size for the invoice container paragraphs */
+    }
+
+    .containerinvoice .label {
+        font-size: 10px;
+        /* smaller font size for labels in the invoice container */
+    }
+
+    /* Reduce other elements' font sizes */
+    .signature-placeholder,
+    .signature-date {
+        font-size: 10px;
+    }
+}
+
+
+
+/* Style for the SweetAlert popup */
+.swal2-popup {
+    font-family: 'Poppins', sans-serif !important;
+    background-color: #F5EDED !important;
+    color: #6482AD !important;
+    padding: 20px !important;
+}
+
+.swal2-title {
+    font-size: 24px !important;
+    font-weight: 600 !important;
+    color: #6482AD !important;
+}
+
+.swal2-text {
+    font-size: 16px !important;
+    color: #6482AD !important;
+}
+
+.swal2-icon.swal2-warning,
+.swal2-icon.swal2-info,
+.swal2-icon.swal2-question {
+    width: 50px !important;
+    height: 50px !important;
+    font-size: 28px !important;
+}
+
+.swal2-icon.swal2-success {
+    width: 80px;
+    height: 80px;
+}
+
+
+.containerinvoice {
+    display: flex;
+    flex-wrap: wrap;
+    font-size: 14px;
+}
+
+.section {
+    width: 50%;
+    padding: 10px;
+    border-top: 1px solid #7FA1C3;
+    border-right: 1px solid #7FA1C3;
+    border-bottom: none;
+    border-left: 1px solid #7FA1C3;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+.section .label {
+    font-weight: 100;
+    font-size: 14px;
+}
+
+.section p {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 0;
+    margin-bottom: 5px;
+}
+
+.business-details {
+    border-top: 1px solid #7FA1C3;
+    padding-top: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.business-details div {
+    width: 45%;
+}
+
+.business-details .info {
+    margin-bottom: 2px;
+    font-weight: 100;
+    font-size: 14px;
+}
+
+.business-details .info label {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.customer-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    /* Space between each element */
+}
+
+.customer-details p {
+    font-size: 14px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.customer-details p:not(:last-child)::after {
+    content: ",";
+    margin-right: 2px;
+    /* Space after each comma */
+}
+
+.owner-row span:not(:last-child)::after {
+    content: ",";
+    margin-right: 2px;
+    /* Adjust the space after the comma */
+}

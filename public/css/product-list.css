@@ -1,0 +1,110 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #F5EDED;
+}
+
+.container {
+    max-width: 90%;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: #E2DAD6;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    color: #6482AD;
+    text-align: center;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: #ffffff;
+}
+
+th, td {
+    padding: 15px 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    font-size: 16px;
+}
+
+/* Add border to all columns except the last one */
+th:not(:last-child), td:not(:last-child) {
+    border-right: 2px solid #ddd; /* Middle borders */
+}
+
+th {
+    background-color: #6482AD;
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+tr:nth-child(even) {
+    background-color: #F9F9F9;
+}
+
+tr:hover {
+    background-color: #F1F4F8;
+}
+
+td {
+    color: #555;
+    word-wrap: break-word; /* Ensures long text wraps within cells */
+}
+
+.actions button {
+    margin-right: 5px;
+}
+
+.no-products {
+    text-align: center;
+    color: #6482AD;
+    font-size: 18px;
+    margin-top: 20px;
+}
+
+button {
+    background-color: #6482AD;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #516F8A;
+}
+
+@media (max-width: 768px) {
+    table {
+        font-size: 14px;
+    }
+
+    th, td {
+        padding: 10px;
+    }
+
+    button {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+}
+
+.product-list-btn {
+    position: absolute;
+}

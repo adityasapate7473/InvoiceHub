@@ -1,0 +1,322 @@
+*{
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #F5EDED;
+}
+
+.container {
+  width: 90%;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #E2DAD6;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.section {
+  background-color: #FFFFFF;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.form-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  font-weight: 500;
+  color: #6482AD;
+  margin-bottom: 5px;
+  
+}
+
+input, textarea, select {
+  font-size: 16px;
+  color: #333;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  outline: none;
+}
+
+select:hover,
+select:focus {
+  border-color: #007BFF; 
+}
+
+
+/* Option text styling */
+select option {
+  font-size: 16px; /* Matches other text size */
+  color: #333; /* Matches text color */
+}
+
+textarea {
+  resize: none;
+  height: 42px;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: #6482AD;
+  box-shadow: 0 0 5px rgba(100, 130, 173, 0.5);
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  font-size: 16px; /* Matches other text size */
+  transition: all 0.3s ease;
+}
+
+.primary-btn {
+  background-color: #6482AD;
+  color: #fff;
+}
+
+.primary-btn:hover {
+  background-color: #7FA1C3;
+}
+
+.secondary-btn {
+  background-color: #F5EDED;
+  color: #6482AD;
+  border: 1px solid #6482AD;
+  margin: 10px;
+}
+
+.secondary-btn:hover {
+  background-color: #E2DAD6;
+}
+
+/* Product table styling */
+.product-table-wrapper {
+  overflow-x: auto; /* Scroll only if necessary */
+}
+
+#product-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto; /* Allows columns to adjust width */
+}
+
+#product-table th, #product-table td {
+  border: 1px solid #7FA1C3;
+  padding: 8px;
+  text-align: center;
+  word-wrap: break-word;
+  min-width: 50px; /* Minimum width for readability */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#product-table th {
+  background-color: #6482AD;
+  color: #fff;
+}
+
+/* Make columns flexible */
+#product-table td input {
+  width: 100%; /* Make input take full column space */
+  box-sizing: border-box; /* Ensures padding doesn't affect width */
+}
+
+.delete-row {
+  color: red;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.delete-row:hover {
+  color: darkred;
+}
+
+/* Styling for the bill summary section */
+.section {
+  background-color: #FFFFFF;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+}
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.form-group {
+  flex: 1 1 45%; /* Adjust to fit within the container */
+  min-width: 250px;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  border-bottom: 1px solid #E2DAD6;
+}
+
+.form-group label {
+  font-weight: 500;
+  color: #6482AD;
+  margin-bottom: 5px;
+}
+
+.form-group p {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* .form-group select {
+  padding: 5px;
+  border: 1px solid #7FA1C3;
+  border-radius: 6px;
+  font-size: 14px;
+} */
+
+.grand-total p {
+  color: #4CAF50; /* Green for the grand total */
+  font-size: 18px;
+}
+
+.product-total p{
+  color: #c8ae05;
+}
+
+.words {
+  flex-basis: 100%; /* Full width */
+  /* text-align: center; */
+  font-size: 16px;
+  font-weight: bold;
+  color: #6482AD;
+}
+
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+  #product-table th, #product-table td {
+    font-size: 12px;
+    padding: 6px;
+  }
+
+  .product-table-wrapper {
+    overflow-x: scroll;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  #product-table th, #product-table td {
+    font-size: 10px;
+    padding: 4px;
+  }
+}
+
+
+/* Apply the desired font */
+input.flatpickr {
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  color: #333;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+}
+
+/* Customize the calendar dropdown as well */
+.flatpickr-calendar {
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+}
+
+/* Style for the date input field */
+input[type="date"] {
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  color: #333;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  outline: none;
+  appearance: none;
+}
+
+/* Focus state styling */
+input[type="date"]:focus {
+  border-color: #007BFF;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
+
+/* Apply the desired font */
+input.flatpickr {
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  color: #333;
+  padding: 8px 30px 8px 8px; /* Adjust padding for the icon */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  width: 100%;
+}
+
+/* Calendar icon */
+.calendar-icon {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  color: #888;
+  pointer-events: none;
+}
+
+/* Wrapper for the input and icon */
+.input-with-icon {
+  position: relative;
+  width: 100%;
+}
+
+
+/* Product List Button */
+.product-list-btn {
+  position: initial;
+  float: right;
+  padding: 8px 16px;
+  background-color: #6482AD;
+  color: white;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  max-width: 180px; /* Set width */
+  white-space: nowrap; /* Prevent text from wrapping */
+  overflow: hidden; /* Hide overflow content */
+  text-overflow: ellipsis; /* Add ellipsis for overflowing text */
+  box-sizing: border-box; /* Include padding and border in width */
+}
+
+
+.product-list-btn:hover {
+  background-color: #516F8A;
+}

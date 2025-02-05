@@ -1,0 +1,400 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer List</title>
+    <link rel="stylesheet" href="/css/navbar.css">
+    <link rel="stylesheet" href="/css/customer-list.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("images/background.jpg") no-repeat center center fixed;
+            background-size: cover;
+            opacity: 0.1;
+            z-index: -1;
+        }
+    </style>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #F5EDED;
+        }
+
+        .container {
+            max-width: 90%;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: #E2DAD6;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .generate-bill-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: #6482AD;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        .generate-bill-btn:hover {
+            background-color: #516F8A;
+        }
+
+        h1 {
+            color: #6482AD;
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .filters-container {
+            padding: 15px;
+            background-color: #FFFFFF;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            width: 70%;
+            margin: auto;
+        }
+
+        .filters {
+            display: flex;
+            justify-content: space-evenly;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .filters select,
+        .filters input,
+        .filters button {
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+
+        .filters button {
+            background-color: #6482AD;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .filters button:hover {
+            background-color: #516F8A;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: #ffffff;
+        }
+
+        th,
+        td {
+            padding: 15px 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            font-size: 16px;
+        }
+
+        th:not(:last-child),
+        td:not(:last-child) {
+            border-right: 2px solid #ddd;
+        }
+
+        th {
+            background-color: #6482AD;
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #F9F9F9;
+        }
+
+        tr:hover {
+            background-color: #F1F4F8;
+        }
+
+        td {
+            color: #555;
+            word-wrap: break-word;
+        }
+
+        .no-products {
+            text-align: center;
+            color: #6482AD;
+            font-size: 18px;
+            margin-top: 20px;
+        }
+
+        button {
+            background-color: #6482AD;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #516F8A;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("images/background.jpg") no-repeat center center fixed;
+            background-size: cover;
+            opacity: 0.1;
+            z-index: -1;
+        }
+
+        @media (max-width: 768px) {
+            .filters-container {
+                width: 90%;
+            }
+
+            .filters {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+
+            .generate-bill-btn {
+                font-size: 12px;
+                padding: 8px 10px;
+                top: 10px;
+                left: 10px;
+            }
+
+            th,
+            td {
+                font-size: 14px;
+                padding: 10px;
+            }
+
+            table {
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 22px;
+            }
+
+            th,
+            td {
+                font-size: 12px;
+                padding: 8px;
+            }
+
+            .filters select,
+            .filters input,
+            .filters button {
+                width: 100%;
+                text-align: center;
+            }
+
+            .generate-bill-btn {
+                font-size: 10px;
+                padding: 6px 8px;
+            }
+
+            .container {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    {{> navbar}}
+    <div class="container">
+        <button class="customer-list-btn" onclick="window.location.href='/register-customer'">Customer
+            Registration</button>
+        <h1>Customer List</h1>
+        <table id="customerTable">
+            <thead>
+                <tr>
+                    <th>Customer ID</th>
+                    <th>Customer Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>State</th>
+                    <th>District</th>
+                    <th>City</th>
+                    <th>Pincode</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Dynamic rows will be inserted here -->
+            </tbody>
+        </table>
+        <p class="no-customer" id="noCustomerMessage" style="display: none;">No customers found.</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // Fetch and display customer data
+        async function fetchCustomers() {
+            try {
+                const response = await fetch('/get-customers', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                const data = await response.json();
+                const customerTableBody = document.querySelector('#customerTable tbody');
+                const noCustomerMessage = document.getElementById('noCustomerMessage');
+
+                if (data.success) {
+                    if (data.customers.length > 0) {
+                        customerTableBody.innerHTML = '';
+                        noCustomerMessage.style.display = 'none';
+
+                        data.customers.forEach(customer => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${customer.customerId}</td>
+                                <td>${customer.customerName}</td>
+                                <td>${customer.email}</td>
+                                <td>${customer.phone}</td>
+                                <td>${customer.state}</td>
+                                <td>${customer.district}</td>
+                                <td>${customer.city}</td>
+                                <td>${customer.pincode}</td>
+                                <td>
+                                    <button onclick="editCustomer('${customer._id}')">Edit</button>
+                                    <button onclick="deleteCustomer('${customer._id}')">Delete</button>
+                                </td>
+                            `;
+                            customerTableBody.appendChild(row);
+                        });
+
+                    } else {
+                        customerTableBody.innerHTML = '';
+                        noCustomerMessage.style.display = 'block';
+                    }
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message || 'Failed to fetch customers.',
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching customers:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred while fetching customers.',
+                });
+            }
+        }
+
+        // Redirect to the edit page with the customer ID
+        function editCustomer(customerId) {
+            Swal.fire({
+                icon: 'info',
+                title: 'Redirecting...',
+                text: `Redirecting to edit page for customer ID: ${customerId}`,
+                timer: 1500,
+                showConfirmButton: false,
+            }).then(() => {
+                window.location.href = `/edit-customer?customerId=${customerId}`;
+            });
+        }
+
+        // Delete customer after confirmation
+        async function deleteCustomer(customerId) {
+            const result = await Swal.fire({
+                title: 'Are you sure?',
+                text: 'You won\'t be able to revert this!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!',
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch(`/delete-customer/${customerId}`, {
+                        method: 'DELETE',
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Deleted!',
+                            text: 'Customer has been deleted.',
+                        });
+                        fetchCustomers(); // Refresh the list after deletion
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to delete the customer.',
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error deleting customer:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An error occurred while deleting the customer.',
+                    });
+                }
+            }
+        }
+
+        // Fetch customers when the page loads
+        window.onload = fetchCustomers;
+    </script>
+
+</body>
+
+</html>

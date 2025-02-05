@@ -1,0 +1,397 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Bills</title>
+    <link rel="stylesheet" href="/css/navbar.css">
+    <link rel="stylesheet" href="/css/report.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.0/dist/sweetalert2.min.css">
+    <!-- Import Poppins font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("images/background.jpg") no-repeat center center fixed;
+            background-size: cover;
+            opacity: 0.1;
+            z-index: -1;
+        }
+    </style>
+</head>
+
+<body>
+    {{> navbar}}
+    <div class="container">
+        <!-- Generate Bill Button -->
+        <button class="generate-bill-btn" onclick="window.location.href='/generate-gst-bill';">Generate Bill</button>
+
+        <!-- Bill List Button -->
+        <button class="bill-list-btn" onclick="window.location.href='/bill-list';">Bill List</button>
+
+        <!-- Page Title -->
+        <h1>GST Bills Reports</h1>
+
+        <!-- Filters Section -->
+        <div class="filters-container">
+            <div class="filters">
+                <input type="text" id="filter-name" placeholder="Search Customer Name....">
+                {{!-- <input type="date" id="filter-start-date" placeholder="Start Date">
+                <input type="date" id="filter-end-date" placeholder="End Date"> --}}
+                <button onclick="applyFilters()"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </div>
+        </div>
+
+
+        <!-- Table for displaying bills -->
+        <div class="table-container">
+            <table id="customers-table">
+                <thead>
+                    <tr>
+                        <th>Customer ID</th>
+                        <th>Customer Name</th>
+                        <th>GST Number</th>
+                        <th>Phone</th>
+                        <th>Bill Count</th>
+                        <th>Total Quantity</th>
+                        <th>Total Amount</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Dynamic rows populated via JavaScript -->
+                </tbody>
+            </table>
+            <!-- No records message -->
+            <div id="no-records-customers" class="no-products" style="display: none;">
+                No customers with bills found.
+            </div>
+        </div>
+        <!-- Popup Modal -->
+        <div id="customer-report-modal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <h2>Customer Report</h2>
+                <div id="report-content">
+                    <!-- Report content will be dynamically populated here -->
+                </div>
+                <button class="btn-download" onclick="printReport()">Download/Print</button>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.0/dist/sweetalert2.all.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', fetchCustomerSummary);
+
+        async function fetchCustomerSummary(filters = {}) {
+            try {
+                const queryParams = new URLSearchParams(filters).toString();
+                const response = await fetch(`/get-customers-summary?${queryParams}`);
+
+                if (!response.ok) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to fetch filtered customers!',
+                    });
+                    return;
+                }
+
+                const data = await response.json();
+                const tbody = document.querySelector('#customers-table tbody');
+                const noRecordsMessage = document.getElementById('no-records-customers');
+
+                if (data.success && data.customers.length > 0) {
+                    tbody.innerHTML = ''; // Clear existing rows
+                    noRecordsMessage.style.display = 'none';
+
+                    data.customers.forEach((customer) => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                    <td>${customer.customerId}</td>
+                    <td>${customer.name}</td>
+                    <td>${customer.gstNumber || 'N/A'}</td>
+                    <td>${customer.phone || 'N/A'}</td>
+                    <td>${customer.billCount}</td>
+                    <td>${customer.totalQuantity}</td>
+                    <td>${customer.totalAmount.toFixed(2)}</td>
+                    <td>
+                        <button onclick="viewCustomerReport('${customer.customerId}')">Download</button>
+                    </td>
+                `;
+                        tbody.appendChild(row);
+                    });
+                } else {
+                    tbody.innerHTML = ''; // Clear table
+                    noRecordsMessage.style.display = 'block'; // Show "no records" message
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Unable to fetch filtered customers!',
+                });
+            }
+        }
+
+        function applyFilters() {
+            const name = document.getElementById('filter-name')?.value.trim();
+            const minAmount = document.getElementById('filter-amount')?.value.trim();
+            const maxAmount = document.getElementById('filter-max-amount')?.value.trim();
+            const minQuantity = document.getElementById('filter-quantity')?.value.trim();
+            const maxQuantity = document.getElementById('filter-max-quantity')?.value.trim();
+            const startDate = document.getElementById('filter-start-date')?.value;
+            const endDate = document.getElementById('filter-end-date')?.value;
+
+            // Construct filters
+            const filters = {};
+            if (name) filters.name = name;
+            if (minAmount) filters.minAmount = minAmount;
+            if (maxAmount) filters.maxAmount = maxAmount;
+            if (minQuantity) filters.minQuantity = minQuantity;
+            if (maxQuantity) filters.maxQuantity = maxQuantity;
+            if (startDate) filters.startDate = startDate;
+            if (endDate) filters.endDate = endDate;
+
+            // Display Swal loading popup
+            Swal.fire({
+                title: 'Loading...',
+                text: 'Applying filters, please wait.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+
+                    fetchCustomerSummary(filters)
+                        .then(() => {
+                            // Wait for 1.5 seconds before closing the popup
+                            setTimeout(() => {
+                                Swal.close();
+                            }, 1500); // 1.5 seconds
+                        })
+                        .catch((error) => {
+                            console.error('Error applying filters:', error);
+                        });
+                },
+            });
+        }
+
+        async function viewCustomerReport(customerId) {
+            try {
+                const response = await fetch(`/get-customer-report/${customerId}`);
+
+                if (!response.ok) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to fetch customer report!',
+                    });
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    const modal = document.getElementById('customer-report-modal');
+                    const reportContent = document.getElementById('report-content');
+
+                    // Generate table dynamically
+                    reportContent.innerHTML = `
+                <p><strong>Customer ID:</strong> ${customerId}</p>
+                <p><strong>Name:</strong> ${data.customer.name}</p>
+                <p><strong>GST Number:</strong> ${data.customer.gstNumber || 'N/A'}</p>
+                <p><strong>Phone:</strong> ${data.customer.phone || 'N/A'}</p>
+                <p><strong>Total Bills:</strong> ${data.customer.billCount}</p>
+                <p><strong>Total Bills:</strong> ${data.customer.totalQuantity}</p>
+                <p><strong>Total Amount:</strong> ₹${data.customer.totalAmount.toFixed(2)}</p>
+                <h3>Bill Details:</h3>
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th>Invoice No</th>
+                            <th>Quantity</th>
+                            <th>Amount</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.customer.bills
+                            .map(
+                                (bill) =>
+                                    `<tr>
+                                        <td>${bill.invoiceNo}</td>
+                                        <td>${bill.total}</td>
+                                        <td>₹${bill.amount.toFixed(2)}</td>
+                                        <td>${new Date(bill.date).toLocaleDateString()}</td>
+                                    </tr>`
+                            )
+                            .join('')}
+                    </tbody>
+                </table>
+            `;
+                    modal.style.display = 'block'; // Show the modal
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Unable to fetch customer report!',
+                });
+            }
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('customer-report-modal');
+            modal.style.display = 'none';
+        }
+
+        function printReport() {
+            const modalContent = document.getElementById('customer-report-modal');
+
+            // Create an iframe to print
+            const iframe = document.createElement('iframe');
+            iframe.style.position = 'absolute';
+            iframe.style.width = '0';
+            iframe.style.height = '0';
+            iframe.style.border = 'none';
+            document.body.appendChild(iframe);
+
+            const iframeDoc = iframe.contentWindow.document;
+            const iframeHtml = `
+        <html>
+            <head>
+                <title>Customer Report</title>
+                <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+                <style>
+                    body {
+                        font-family: 'Poppins', sans-serif;
+                        margin: 20px;
+                        padding: 0;
+                        background-color: #F5EDED;
+
+                    }
+                    .modal {
+                        background-color: #E2DAD6;
+                        display: block;
+                        position: static;
+                        padding: 20px;
+                        background: #f9f9f9;
+                        width: 100%;
+                    }
+                    .modal-content{
+                        background-color: white;
+                        margin: 20px auto;
+                        padding: 20px;  
+                        border-radius: 10px;                                            
+                    }
+                    h2{
+                        text-align:center;
+                    }
+                    table {
+                        width: 95%;
+                        border-collapse: collapse;
+                        margin-top: 20px;
+                        margin: 0px auto;
+                        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                        border-radius: 10px;
+                        overflow: hidden;
+                        background-color: #ffffff;
+                    }
+
+                    th,
+                    td {
+                        padding: 15px 12px;
+                        text-align: left;
+                        border-bottom: 1px solid #ddd;
+                        font-size: 16px;
+                    }
+
+                    th:not(:last-child),
+                    td:not(:last-child) {
+                        border-right: 2px solid #ddd;
+                    }
+
+                    th {
+                        background-color: #6482AD;
+                        color: white;
+                        font-weight: 600;
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                    }
+
+                    tr:nth-child(even) {
+                        background-color: #F9F9F9;
+                    }
+
+                    tr:hover {
+                        background-color: #F1F4F8;
+                    }
+
+                    td {
+                        color: #555;
+                        word-wrap: break-word;
+                    }
+                    .btn-download,.close{
+                        display:none;
+                    }
+                </style>
+            </head>
+            <body>
+                ${modalContent.innerHTML}
+            </body>
+        </html>
+    `;
+
+            iframeDoc.open();
+            iframeDoc.write(iframeHtml);
+            iframeDoc.close();
+
+            // Wait for the content to be fully loaded before triggering print
+            iframe.contentWindow.onload = function () {
+                iframe.contentWindow.focus();  // Focus the iframe content
+                iframe.contentWindow.print();  // Trigger the print
+                document.body.removeChild(iframe); // Clean up by removing the iframe
+            };
+        }
+    </script>
+    <script>
+        const input = document.getElementById("filter-name");
+        const placeholderText = "Search Customer Name....";
+        let index = 0;
+        let isDeleting = false;
+
+        function animatePlaceholder() {
+            if (!isDeleting) {
+                // Typing effect
+                input.setAttribute("placeholder", placeholderText.substring(0, index + 1));
+                index++;
+                if (index === placeholderText.length) {
+                    // Pause at the end before deleting
+                    isDeleting = true;
+                    setTimeout(animatePlaceholder, 1000); // Pause before deletion
+                    return;
+                }
+            } else {
+                // Deleting effect
+                input.setAttribute("placeholder", placeholderText.substring(0, index - 1));
+                index--;
+                if (index === 0) {
+                    // Pause before typing again
+                    isDeleting = false;
+                    setTimeout(animatePlaceholder, 500); // Pause before re-typing
+                    return;
+                }
+            }
+            setTimeout(animatePlaceholder, 100); // Adjust typing/deleting speed here
+        }
+
+        animatePlaceholder(); // Start the animation
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,264 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile</title>
+  <link rel="stylesheet" href="/css/navbar.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    /* Background image */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url("images/background.jpg") no-repeat center center fixed;
+      background-size: cover;
+      opacity: 0.1;
+      z-index: -1;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #F5EDED;
+    }
+
+    .container {
+      max-width: 90%;
+      padding: 20px;
+      background-color: #E2DAD6;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    h4 {
+      color: #6482AD;
+      font-weight: 600;
+      font-size: 25px;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .section {
+      background-color: #FFFFFF;
+      padding: 30px;
+      margin-bottom: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    label {
+      font-weight: 500;
+      color: #6482AD;
+      margin-bottom: 5px;
+    }
+
+    input,
+    button,
+    textarea {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      outline: none;
+      font-family: 'Poppins', sans-serif;
+      font-size: 16px;
+      background-color: #f9f9f9;
+    }
+
+    input:focus,
+    textarea:focus {
+      border-color: #6482AD;
+      box-shadow: 0 0 5px rgba(100, 130, 173, 0.5);
+    }
+
+    textarea {
+      resize: none;
+      height: calc(2.5em + 10px);
+    }
+
+    input[type="file"] {
+      font-family: 'Poppins', sans-serif;
+      font-size: 16px;
+    }
+
+    button {
+      background-color: #6482AD;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background-color: #7FA1C3;
+    }
+
+    .form-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .form-group {
+      flex: 1 1 calc(33.333% - 20px);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .profile-info {
+      background-color: #FFFFFF;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+
+    .edit-btn {
+      background-color: #6482AD;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+      margin-top: 20px;
+      width: 100%;
+    }
+
+    .edit-btn:hover {
+      background-color: #7FA1C3;
+    }
+
+    @media screen and (max-width: 768px) {
+      .form-group {
+        flex: 1 1 100%;
+      }
+
+      .form-row {
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+
+    input,textarea {
+      background-color: #f0f0f0;
+      /* Light gray background */
+      cursor: not-allowed;
+      /* Change cursor to indicate it's not editable */
+    }
+  </style>
+</head>
+
+<body>
+  {{> navbar}}
+  <div class="container">
+    <h4>Profile</h4>
+    <div class="section">
+      <div class="profile-info">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="businessName">Business Name:</label>
+            <input type="text" id="businessName" disabled value="Loading...">
+          </div>
+          <div class="form-group">
+            <label for="gstNumber">GST Number:</label>
+            <input type="text" id="gstNumber" disabled value="Loading...">
+          </div>
+          <div class="form-group">
+            <label for="panNumber">PAN Number:</label>
+            <input type="text" id="panNumber" disabled value="Loading...">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="state">State:</label>
+            <input type="text" id="state" disabled value="Loading...">
+          </div>
+          <div class="form-group">
+            <label for="district">District:</label>
+            <input type="text" id="district" disabled value="Loading...">
+          </div>
+          <div class="form-group">
+            <label for="city">City:</label>
+            <input type="text" id="city" disabled value="Loading...">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="address">Address:</label>
+            <textarea id="address" disabled>Loading...</textarea>
+          </div>
+          <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" disabled value="Loading...">
+          </div>
+          <div class="form-group">
+            <label for="phone">Phone:</label>
+            <input type="tel" id="phone" disabled value="Loading...">
+          </div>
+        </div>
+      </div>
+
+      <button class="edit-btn" id="updateBtn">Edit Profile <i class="fa-solid fa-pen-to-square"></i></button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    // Fetch user profile data and populate the page
+    fetch('/get-profile')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to fetch profile data');
+        }
+        return response.json();
+      })
+      .then(data => {
+        document.getElementById('businessName').value = data.businessName || 'N/A';
+        document.getElementById('gstNumber').value = data.gstNumber || 'N/A';
+        document.getElementById('panNumber').value = data.panNumber || 'N/A';
+        document.getElementById('state').value = data.state || 'N/A';
+        document.getElementById('district').value = data.district || 'N/A';
+        document.getElementById('city').value = data.city || 'N/A';
+        document.getElementById('address').value = data.address || 'N/A';
+        document.getElementById('email').value = data.email || 'N/A';
+        document.getElementById('phone').value = data.phone || 'N/A';
+      })
+      .catch(error => {
+        console.error('Error fetching profile:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Unable to fetch profile data. Please try again later.'
+        });
+      });
+
+    // Redirect to the update profile page on button click with a popup and timer
+    document.getElementById('updateBtn').addEventListener('click', function () {
+      Swal.fire({
+        title: 'Redirecting...',
+        text: 'You will be redirected to the update profile page',
+        icon: 'info',
+        timer: 1500, // 1.5 seconds timer
+        timerProgressBar: true,
+        showConfirmButton: false,
+        willClose: () => {
+          window.location.href = '/update-profile'; // Redirect after 1.5 seconds
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>

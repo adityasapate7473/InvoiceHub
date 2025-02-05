@@ -1,0 +1,529 @@
+
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #F5EDED;
+}
+
+.container {
+    max-width: 90%;
+    margin: 0px auto;
+    padding: 20px;
+    background-color: #E2DAD6;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+.generate-bill-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background-color: #6482AD;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+.generate-bill-btn:hover {
+    background-color: #516F8A;
+}
+.bill-list-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    /* Adjust spacing based on placement */
+    background-color: #6482AD;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+.bill-list-btn:hover {
+    background-color: #516F8A;
+}
+h1 {
+    color: #6482AD;
+    text-align: center;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+.filters-container {
+    padding: 15px;
+    background-color: #FFFFFF;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    width: 51%;
+    margin: auto;
+}
+.filters {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+.filters select,
+.filters input,
+.filters button {
+    padding: 8px 12px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+}
+
+.filters button {
+    background-color: #6482AD;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+.filters button:hover {
+    background-color: #516F8A;
+}
+.table-container {
+    overflow-x: auto;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: #ffffff;
+}
+th,
+td {
+    padding: 15px 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    font-size: 16px;
+}
+th:not(:last-child),
+td:not(:last-child) {
+    border-right: 2px solid #ddd;
+}
+th {
+    background-color: #6482AD;
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+tr:nth-child(even) {
+    background-color: #F9F9F9;
+}
+tr:hover {
+    background-color: #F1F4F8;
+}
+td {
+    color: #555;
+    word-wrap: break-word;
+}
+.no-products {
+    text-align: center;
+    color: #6482AD;
+    font-size: 18px;
+    margin-top: 20px;
+}
+button {
+    background-color: #6482AD;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+button:hover {
+    background-color: #516F8A;
+}
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url("images/background.jpg") no-repeat center center fixed;
+    background-size: cover;
+    opacity: 0.1;
+    z-index: -1;
+}
+/* Modal Styling */
+.modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    margin-top: 0;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    width: 70%;
+    max-width: 900px;
+    animation: fadeIn 0.3s ease-in-out;
+    overflow: auto;
+    max-height: auto;
+}
+/* Modal Header */
+.modal h2 {
+    text-align: center;
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.modal-content {
+    text-align: left;
+}
+/* Close Button */
+.modal .close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    color: #888;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+.modal .close:hover {
+    color: #333;
+}
+/* Table Styling */
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 16px;
+}
+.report-table thead {
+    background-color: #007BFF;
+    color: white;
+}
+.report-table th,
+.report-table td {
+    border: 1px solid #ddd;
+    text-align: left;
+    padding: 8px;
+}
+.report-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+.report-table tr:hover {
+    background-color: #f1f1f1;
+}
+/* Download Button */
+.btn-download {
+    display: inline-block;
+    background-color: #28a745;
+    color: white;
+    font-size: 16px;
+    padding: 10px 20px;
+    margin-top: 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-align: center;
+}
+.btn-download:hover {
+    background-color: #218838;
+}
+/* Hide everything outside the modal when in print mode */
+body.print-mode *:not(.modal):not(.modal *) {
+    display: none !important;
+}
+/* Ensure the modal takes full control during print */
+body.print-mode .modal {
+    display: block !important;
+    position: static;
+    width: 100%;
+    height: auto;
+    box-shadow: none;
+    padding: 0;
+    border: none;
+}
+body.print-mode .modal-content {
+    width: 100%;
+    padding: 20px;
+}
+body.print-mode {
+    background: white;
+    margin: 0;
+    padding: 0;
+}
+
+/* Basic styles for the input field */
+#filter-name {
+    font-size: 16px;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Style for the placeholder text */
+#filter-name::placeholder {
+    font-size: 14px;
+    color: #888;
+    white-space: nowrap; /* Ensure text doesn't break */
+    opacity: 1;
+    animation: placeholderTyping 3s steps(30, end) forwards; /* Typing effect */
+}
+
+/* Keyframes for the typing effect */
+@keyframes placeholderTyping {
+    0% {
+        opacity: 1;
+        content: "";
+    }
+    100% {
+        content: "Search Customer Name....";
+    }
+}
+
+
+/* Fade In Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -55%);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+@media (max-width: 768px) {
+    .filters-container {
+        width: 50%;
+    }
+    .filters {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+    .generate-bill-btn {
+        font-size: 12px;
+        padding: 8px 10px;
+        top: 10px;
+        left: 10px;
+    }
+    th,
+    td {
+        font-size: 14px;
+        padding: 10px;
+    }
+    table {
+        font-size: 12px;
+    }
+}
+@media (max-width: 480px) {
+    h1 {
+        font-size: 22px;
+    }
+    th,
+    td {
+        font-size: 12px;
+        padding: 8px;
+    }
+    .filters select,
+    .filters input,
+    .filters button {
+        width: 100%;
+        text-align: center;
+    }
+    .generate-bill-btn {
+        font-size: 10px;
+        padding: 6px 8px;
+    }
+    .container {
+        padding: 10px;
+    }
+}
+/* Print-specific styling */
+@media print {
+    /* Ensure the A4 page size is used */
+    @page {
+        size: A4;
+        margin: 0mm;
+        /* Remove margins to avoid extra space */
+        /* Adjust margins for A4 */
+    }
+    body * {
+        visibility: hidden;
+        overflow: hidden;
+        /* Hide all elements */
+    }
+    .modal,
+    .modal * {
+        visibility: visible;
+        /* Show only the modal content */
+        width: 100%;
+        /* Ensure modal takes full width */
+        box-sizing: border-box;
+        /* Ensure box-sizing includes padding and border */
+    }
+    .modal {
+        position: static;
+        transform: none;
+        width: 100%;
+        max-width: none;
+        padding: 10mm;
+        /* Adjust padding for printing */
+        background: #fff;
+        margin: 0;
+        /* Ensure no margin for printing */
+    }
+    .modal .close {
+        display: none;
+        /* Hide the close button during printing */
+    }
+}
+
+
+/* Reduce size of all SweetAlert2 icons except success */
+.swal2-icon.swal2-warning,
+.swal2-icon.swal2-info,
+.swal2-icon.swal2-question {
+    width: 50px !important;
+    /* Adjust size as needed */
+    height: 50px !important;
+    /* Adjust size as needed */
+    font-size: 28px !important;
+    /* Adjust icon font size */
+}
+
+/* Keep success icon default size */
+.swal2-icon.swal2-success {
+    width: 80px;
+    /* Default size */
+    height: 80px;
+    /* Default size */
+}
+
+
+/*Sales Report*/
+
+.tabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    gap: 10px;
+}
+
+.tabs button {
+    padding: 10px 20px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    border: 2px solid #6482AD;
+    background-color: #fff;
+    color: #6482AD;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.tabs button:hover {
+    background-color: #6482AD;
+    color: #fff;
+}
+
+.tabs button.active-tab {
+    background-color: #6482AD;
+    color: #fff;
+}
+
+.report-section {
+    display: none;
+}
+
+.report-section.active-section {
+    display: block;
+}
+
+/*sales report*/
+
+.dashboard-container {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #E2DAD6;
+    padding: 20px;
+    border-radius: 10px;
+    min-height: 100vh;
+    gap: 20px;
+}
+
+.summary-and-chart {
+    border: 1px solid white;
+    padding: 20px;
+    border-radius: 10px;
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    /* Center-align horizontally */
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.summary-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    /* Two cards per row */
+    gap: 20px;
+    /* Space between the cards */
+}
+
+.summary-card {
+    flex: 1;
+    min-width: 220px;
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.summary-card h2 {
+    margin: 0;
+    font-size: 28px;
+    color: #6482AD;
+}
+
+.summary-card p {
+    margin: 10px 0 0;
+    font-size: 16px;
+    color: #6c757d;
+}
+
+.chart-container {
+    flex: 1;
+    max-width: 600px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+@media print {
+    .download-button{
+        display: none;
+    }
+}

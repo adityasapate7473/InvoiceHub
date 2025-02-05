@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Report Dashboard</title>
+    <link rel="stylesheet" href="/css/navbar.css">
+    <link rel="stylesheet" href="/css/report.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.0/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.2.1/Chart.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <style>
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("images/background.jpg") no-repeat center center fixed;
+            background-size: cover;
+            opacity: 0.1;
+            z-index: -1;
+        }
+
+        .filters-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px auto;
+            width: 80%;
+            max-width: 1000px;
+        }
+
+        .filter {
+            padding: 10px 15px;
+            font-size: 16px;
+            min-width: 250px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            color: #333;
+            transition: background-color 0.3s ease;
+        }
+
+        .filter:hover {
+            background-color: #f5f5f5;
+        }
+
+        .filter-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .tax-summary-container {
+            display: flex;
+            width: 100%;
+            gap: 20px;
+            flex-direction: column;
+            align-items: center;
+            margin: 0 auto;
+            border: 1px solid white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .overview-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 40px;
+            width: 80%;
+            max-width: 1000px;
+        }
+
+        .overview-card {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .overview-card h2 {
+            margin: 0;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .overview-card p {
+            font-size: 24px;
+            margin-top: 10px;
+            color: #2f72b5;
+        }
+
+        .overview-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .chart-container {
+            width: 80%;
+            max-width: 1000px;
+        }
+
+        canvas {
+            width: 100%;
+            height: 400px;
+        }
+    </style>
+</head>
+
+<body>
+    {{> navbar}}
+    <div class="container">
+        <!-- Filter Section -->
+        {{!-- <div class="filters-container">
+            <div class="filter">
+                <label for="date-range" class="filter-label">Select Date Range:</label>
+                <select id="date-range" class="filter">
+                    <option value="monthly">Monthly</option>
+                    <option value="quarterly">Quarterly</option>
+                    <option value="yearly">Yearly</option>
+                </select>
+            </div>
+
+            <div class="filter">
+                <label for="search-name" class="filter-label">Search by Name:</label>
+                <input type="text" id="search-name" class="filter" placeholder="Enter customer name">
+            </div>
+        </div> --}}
+        <!-- Download Button -->
+        <div class="download-button" id="download-button">
+            <button onclick="printOrDownloadReport()">Print/Download Report</button>
+        </div>
+
+        <div class="dashboard-container">
+
+            <div class="tax-summary-container">
+                <!-- Total Sales Overview -->
+                <div class="overview-cards">
+                    <div class="overview-card">
+                        <h2>Total Sales</h2>
+                        <p id="total-sales">₹0</p>
+                    </div>
+                    <div class="overview-card">
+                        <h2>GST Sales</h2>
+                        <p id="gst-sales">₹0</p>
+                    </div>
+                    <div class="overview-card">
+                        <h2>Non-GST Sales</h2>
+                        <p id="non-gst-sales">₹0</p>
+                    </div>
+                    <div class="overview-card">
+                        <h2>Total CGST</h2>
+                        <p id="total-cgst">₹0</p>
+                    </div>
+                    <div class="overview-card">
+                        <h2>Total SGST</h2>
+                        <p id="total-sgst">₹0</p>
+                    </div>
+                    <div class="overview-card">
+                        <h2>Total GST Amount</h2>
+                        <p id="total-gst-amount">₹0</p>
+                    </div>
+                </div>
+
+                <!-- Tax Summary Chart -->
+                <div class="chart-container">
+                    <canvas id="taxChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.0/dist/sweetalert2.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        async function fetchTaxSummary() {
+            try {
+                const response = await fetch('/tax-summary');
+                const data = await response.json();
+
+                // Update card values
+                document.getElementById('total-sales').textContent = `₹${data.totalSales.toFixed(2)}`;
+                document.getElementById('gst-sales').textContent = `₹${data.gstSales.toFixed(2)}`;
+                document.getElementById('non-gst-sales').textContent = `₹${data.nonGstSales.toFixed(2)}`;
+                document.getElementById('total-cgst').textContent = `₹${data.totalCgst.toFixed(2)}`;
+                document.getElementById('total-sgst').textContent = `₹${data.totalSgst.toFixed(2)}`;
+                document.getElementById('total-gst-amount').textContent = `₹${data.totalGstAmount.toFixed(2)}`;
+
+                // Prepare chart data
+                const chartData = {
+                    labels: ['GST Sales', 'Non-GST Sales'],
+                    datasets: [{
+                        label: 'Sales Breakdown',
+                        data: [data.gstSales, data.nonGstSales],
+                        backgroundColor: ['#4e73df', '#36b9cc'],
+                        hoverOffset: 4
+                    }]
+                };
+
+                // Initialize the chart
+                const ctx = document.getElementById('taxChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'pie', // Pie chart for visual distribution
+                    data: chartData,
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (tooltipItem) {
+                                        return tooltipItem.label + ': ₹' + tooltipItem.raw.toFixed(2);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+            } catch (error) {
+                console.error('Error fetching tax summary:', error);
+            }
+        }
+
+        // Fetch data when page loads
+        fetchTaxSummary();
+
+        // Filter by date range
+        document.getElementById('date-range').addEventListener('change', (event) => {
+            const dateRange = event.target.value;
+            const searchName = document.getElementById('search-name').value;
+            fetchTaxSummary(dateRange, searchName);
+        });
+
+        // Search by name
+        document.getElementById('search-name').addEventListener('input', (event) => {
+            const searchName = event.target.value;
+            const dateRange = document.getElementById('date-range').value;
+            fetchTaxSummary(dateRange, searchName);
+        });
+
+
+        async function printOrDownloadReport() {
+            const container = document.querySelector('.dashboard-container');
+            const canvas = await html2canvas(container, { scale: 2 });
+            const imgData = canvas.toDataURL('image/png');
+
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const imgProps = pdf.getImageProperties(imgData);
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+
+            // Print or Download Confirmation
+            Swal.fire({
+                title: 'Download the report?',
+                text: 'You can download the report by clicking below.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: '<i class="fas fa-download"></i> Download',
+                cancelButtonText: '<i class="fas fa-times"></i> Cancel',
+                customClass: {
+                    popup: 'custom-popup',
+                    title: 'popup-title',
+                    confirmButton: 'popup-confirm-button',
+                    cancelButton: 'popup-cancel-button',
+                },
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    pdf.save('Tax_Report.pdf'); // Save the PDF with the customer name and ID in the filename
+                }
+            });
+        }
+    </script>
+
+</body>
+
+</html>

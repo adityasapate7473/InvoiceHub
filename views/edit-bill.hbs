@@ -1,0 +1,1203 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Bill - InvoiceHub</title>
+    <link rel="stylesheet" href="/css/navbar.css">
+    <link rel="stylesheet" href="/css/generate-bill.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+    <style>
+        /* Similar to your generate bill page but adjusted for editing */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("myapp/public/images/background.jpg") no-repeat center center fixed;
+            background-size: cover;
+            opacity: 0.1;
+            z-index: -1;
+        }
+
+        input[readonly] {
+            background-color: #f0f0f0;
+            /* Light gray background */
+            cursor: not-allowed;
+            /* Change cursor to indicate it's not editable */
+        }
+    </style>
+    <style>
+        /* Custom dropdown container */
+        .custom-dropdown {
+            position: absolute;
+            /* Absolute positioning for flexibility */
+            top: calc(100% + 5px);
+            /* 5px space below the input field */
+            left: 12px;
+            width: 92.5%;
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            display: none;
+            /* Initially hidden */
+        }
+
+        /* Adjust the positioning of the parent container to enable proper dropdown positioning */
+        .form-group {
+            position: relative;
+        }
+
+        /* Individual suggestion items */
+        .custom-dropdown .suggestion-item {
+            padding: 10px 12px;
+            cursor: pointer;
+            font-size: 14px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.2s, padding-left 0.2s;
+        }
+
+        /* Hover effect */
+        .custom-dropdown .suggestion-item:hover {
+            background-color: #f9f9f9;
+            padding-left: 16px;
+        }
+
+        /* Last suggestion item without a border */
+        .custom-dropdown .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .custom-dropdown .suggestion-item {
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+        }
+
+        .product-dropdown {
+            display: none;
+            /* Hidden by default */
+            position: absolute;
+            background-color: white;
+            border: 1px solid #b3b3b3;
+            width: 30%;
+            max-height: 150px;
+            overflow-y: auto;
+            z-index: 9999;
+            text-align: start;
+            border-radius: 10px;
+        }
+
+        .suggestion-item {
+            padding: 10px 12px;
+            cursor: pointer;
+            font-size: 14px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.2s, padding-left 0.2s;
+        }
+
+        .suggestion-item:hover {
+            background-color: #f9f9f9;
+            padding-left: 16px;
+        }
+
+        #po-wrapper {
+            display: flex;
+            /* Enables flex layout */
+            gap: 5px;
+            /* Adds space between inputs */
+            flex-wrap: nowrap;
+            /* Prevents wrapping */
+            overflow-x: hidden;
+            /* Enables horizontal scrolling if needed */
+        }
+
+        #po-wrapper .form-group {
+            flex: 1;
+            /* Adjust width dynamically to fit the container */
+            min-width: 150px;
+            /* Ensure inputs remain readable */
+        }
+    </style>
+</head>
+
+<body>
+    {{> navbar}}
+
+    <div class="container">
+        <button class="product-list-btn" onclick="window.location.href='/bill-list'">Bill List</button>
+
+        <h4 style="text-align: center; color: #6482AD; font-weight: 600;">Edit Bill</h4>
+
+        <form class="bill-form" autocomplete="off">
+            <!-- Invoice and Document Details -->
+            <div class="section">
+                <h4>Invoice Details</h4>
+                <div class="row">
+                    <div class="form-group col-sm-4">
+                        <label for="invoice-no">Invoice No:</label>
+                        <input type="text" id="invoice-no" name="invoice-no" placeholder="Invoice Number" readonly>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label for="challan-no">Challan No:</label>
+                        <input type="text" id="challan-no" name="challan-no" placeholder="Challan Number" readonly>
+                    </div>
+
+                    <div class="form-group col-sm-4">
+                        <label for="date">Date:</label>
+                        <div class="input-with-icon">
+                            <input type="text" id="date" class="flatpickr" placeholder="Select Date"
+                                style="background-color: #fff;">
+                            <span class="calendar-icon">&#128197;</span> <!-- Unicode for calendar icon -->
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row" id="po-wrapper">
+                    <!-- Initial P.O. Input -->
+                    <div class="form-group col-sm-2" id="po-container">
+                        <label for="po-no-1">P.O. No 1:</label>
+                        <input type="text" id="po-no-1" placeholder="Enter P.O. number" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <button type="button" id="add-po" class="secondary-btn">Add More P.O. Number</button>
+                </div>
+
+                <!-- Customer Information -->
+                <h4>Customer Details</h4>
+                <div class="row">
+                    <div class="form-group col-sm-3">
+                        <label for="customer-name">Customer Name:</label>
+                        <input type="text" id="customer-name" placeholder="Enter customer name"
+                            oninput="filterCustomers(this)" required autocomplete="off">
+                        <div id="customer-suggestions" class="custom-dropdown"></div>
+                        <!-- Custom suggestion dropdown -->
+                    </div>
+                    <input type="hidden" id="customerId" required readonly>
+
+                    <div class="form-group col-sm-3">
+                        <label for="customer-gst">Customer GST Number:</label>
+                        <input type="text" id="customer-gst" placeholder="Enter GST number" required>
+                    </div>
+                    <div class="form-group col-sm-3">
+                        <label for="customer-pan">Customer PAN:</label>
+                        <input type="text" id="customer-pan" placeholder="Enter PAN number" required>
+                    </div>
+                    <div class="form-group col-sm-3">
+                        <label for="reg-type">Registration Type:</label>
+                        <select id="reg-type" required>
+                            <option value="registered">Registered</option>
+                            <option value="unregistered">Unregistered</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-sm-3">
+                        <label for="state-code">State Code:</label>
+                        <input type="text" id="state-code" placeholder="Enter state code" required>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label for="state">State:</label>
+                        <select class="form-control" id="state" name="state" required>
+                            <option value="SelectState">Select State</option>
+                            <option value="Andra Pradesh">Andra Pradesh</option>
+                            <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                            <option value="Assam">Assam</option>
+                            <option value="Bihar">Bihar</option>
+                            <option value="Chhattisgarh">Chhattisgarh</option>
+                            <option value="Goa">Goa</option>
+                            <option value="Gujarat">Gujarat</option>
+                            <option value="Haryana">Haryana</option>
+                            <option value="Himachal Pradesh">Himachal Pradesh</option>
+                            <option value="Jammu and Kashmir">Jammu and Kashmir</option>
+                            <option value="Jharkhand">Jharkhand</option>
+                            <option value="Karnataka">Karnataka</option>
+                            <option value="Kerala">Kerala</option>
+                            <option value="Madya Pradesh">Madya Pradesh</option>
+                            <option value="Maharashtra">Maharashtra</option>
+                            <option value="Manipur">Manipur</option>
+                            <option value="Meghalaya">Meghalaya</option>
+                            <option value="Mizoram">Mizoram</option>
+                            <option value="Nagaland">Nagaland</option>
+                            <option value="Orissa">Orissa</option>
+                            <option value="Punjab">Punjab</option>
+                            <option value="Rajasthan">Rajasthan</option>
+                            <option value="Sikkim">Sikkim</option>
+                            <option value="Tamil Nadu">Tamil Nadu</option>
+                            <option value="Telangana">Telangana</option>
+                            <option value="Tripura">Tripura</option>
+                            <option value="Uttaranchal">Uttaranchal</option>
+                            <option value="Uttar Pradesh">Uttar Pradesh</option>
+                            <option value="West Bengal">West Bengal</option>
+                            <option disabled style="background-color:#aaa; color:#fff">UNION Territories</option>
+                            <option value="Andaman and Nicobar Islands">Andaman and Nicobar Islands</option>
+                            <option value="Chandigarh">Chandigarh</option>
+                            <option value="Dadar and Nagar Haveli">Dadar and Nagar Haveli</option>
+                            <option value="Daman and Diu">Daman and Diu</option>
+                            <option value="Delhi">Delhi</option>
+                            <option value="Lakshadeep">Lakshadeep</option>
+                            <option value="Pondicherry">Pondicherry</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label>District:</label>
+                        <select class="form-control" id="inputDistrict" name="district" required>
+                            <option value="">-- select one -- </option>
+                        </select>
+                    </div>
+
+                    <div class="form-group col-sm-3">
+                        <label for="city">Village/City/Town:</label>
+                        <input type="text" id="city" placeholder="Enter village, city, or town">
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label for="street">Street:</label>
+                        <input type="text" id="street" placeholder="Enter street name">
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label for="pincode">PinCode:</label>
+                        <input type="number" id="pincode" placeholder="Enter PinCode">
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label for="phone">Phone No:</label>
+                        <input type="number" id="phone" placeholder="Enter Phone Number">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Information -->
+            <div class="section">
+                <h4>Product Details</h4>
+                <div id="product-container" class="product-table-wrapper">
+                    <table id="product-table">
+                        <thead>
+                            <tr>
+                                <th>SN</th>
+                                <th>Item Code</th>
+                                <th>Product Name</th>
+                                <th>HSN Code</th>
+                                <th>Quantity</th>
+                                <th>Units</th>
+                                <th>Rate</th>
+                                <th>Amount</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="product-container">
+                            <tr class="product-row first-row">
+                                <td class="serial-number">1</td>
+                                <td>
+                                    <input type="text" class="item-code" placeholder="Item Code"
+                                        oninput="fetchProducts(this)" required>
+                                    <div id="product-suggestions" class="product-dropdown"></div>
+                                </td>
+                                <td><input type="text" class="product-name" placeholder="Product Name"></td>
+                                <td><input type="text" class="product-hsn" placeholder="HSN Code"></td>
+                                <td><input type="number" class="product-quantity" placeholder="Quantity"
+                                        oninput="updateBill()"></td>
+                                <td><input type="text" class="product-units" placeholder="Units"></td>
+                                <td><input type="number" class="product-rate" placeholder="Rate" oninput="updateBill()">
+                                </td>
+                                <td class="product-amount">0.00</td>
+                                <td><button type="button" class="delete-row" onclick="deleteRow(this)">X</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p style="margin-top: 15px;"><strong>Total Quantity:</strong> <span id="total-quantity">0.00</span></p>
+                <button type="button" id="add-product" class="secondary-btn">+ Add Another Product</button>
+            </div>
+
+            <!-- Bill Summary -->
+            <div class="section">
+                <h4>Bill Summary</h4>
+                <div class="form-row row">
+                    <div class="form-group col-sm-2 product-total">
+                        <label for="total-product-amount">Total Product Amount:</label>
+                        <p id="total-product-amount">₹ 0.00</p>
+                    </div>
+                    <div class="form-group col-sm-2">
+                        <label for="gst-rate">Select GST (%):</label>
+                        <select id="gst-rate" onchange="updateBill()">
+                            <option value="18">18%</option>
+                            <option value="12">12%</option>
+                            <option value="5">5%</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-sm-2">
+                        <label for="cgst-amount">CGST:</label>
+                        <p id="cgst-amount">₹ 0.00 (9%)</p>
+                    </div>
+                    <div class="form-group col-sm-2">
+                        <label for="sgst-amount">SGST:</label>
+                        <p id="sgst-amount">₹ 0.00 (9%)</p>
+                    </div>
+                    <div class="form-group col-sm-2">
+                        <label for="round-off-amount">Round Off Amount:</label>
+                        <p id="round-off-amount">₹ 0.00</p>
+                    </div>
+                    <div class="form-group col-sm-2 grand-total">
+                        <label for="grand-total">Grand Total:</label>
+                        <p id="grand-total">₹ 0.00</p>
+                    </div>
+                    <div class="form-group col-sm-6 words">
+                        <label for="amount-in-words">Amount in Words:</label>
+                        <p id="amount-in-words">Zero</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transporter Information -->
+            <div class="section">
+                <h4>Transporter Details</h4>
+                <div class="form-row row">
+                    <div class="form-group col-sm-5">
+                        <label for="transporter-name">Transporter Name:</label>
+                        <input type="text" id="transporter-name" placeholder="Enter transporter name">
+                    </div>
+                    <div class="form-group col-sm-6">
+                        <label for="vehicle-number">Vehicle Number:</label>
+                        <input type="text" id="vehicle-number" placeholder="Enter vehicle number">
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button type="button" id="save-bill" class="primary-btn">Save Changes</button>
+                <button type="button" id="reset-form" class="secondary-btn">Reset Bill</button>
+            </div>
+        </form>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="/js/generate-bill.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <script>
+        async function fetchBillDetails(billId) {
+            try {
+                const response = await fetch(`/get-bill/${billId}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch bill details');
+                }
+
+                const data = await response.json();
+                if (data.success) {
+                    const bill = data.bill;
+
+                    // Populate form fields with the fetched data
+                    document.getElementById('invoice-no').value = bill.invoiceNo || '';
+                    document.getElementById('challan-no').value = bill.challanNo || '';
+
+                    // Convert date to d-m-Y format
+                    const date = new Date(bill.date);
+                    const formattedDate = `${date.getDate().toString().padStart(2, '0')}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getFullYear()}`;
+                    document.getElementById('date').value = formattedDate || '';
+
+                    document.getElementById('po-no-1').value = bill.poNumbers || '';
+
+                    // Populate customer details
+                    document.getElementById('customerId').value = bill.customer.customerId || '';
+                    document.getElementById('customer-name').value = bill.customer.name || '';
+                    document.getElementById('customer-gst').value = bill.customer.gstNumber || '';
+                    document.getElementById('customer-pan').value = bill.customer.pan || '';
+                    document.getElementById('reg-type').value = bill.customer.registrationType || '';
+
+                    // Populate address details
+                    document.getElementById('state-code').value = bill.customer.stateCode || '';
+                    document.getElementById('state').value = bill.customer.state || '';
+
+                    // Populate the district dropdown based on customer data
+                    const districtDropdown = document.getElementById('inputDistrict');
+                    districtDropdown.innerHTML = '<option value="">-- select one -- </option>'; // Clear previous options
+
+                    // Directly use the customer's district without extra logic
+                    const selectedDistrict = bill.customer.district || '';
+                    const option = document.createElement('option');
+                    option.value = selectedDistrict;
+                    option.textContent = selectedDistrict;
+
+                    if (selectedDistrict) {
+                        option.selected = true; // Pre-select if a district exists
+                    }
+
+                    districtDropdown.appendChild(option);
+
+                    document.getElementById('city').value = bill.customer.city || '';
+                    document.getElementById('street').value = bill.customer.street || '';
+                    document.getElementById('pincode').value = bill.customer.pincode || '';
+                    document.getElementById('phone').value = bill.customer.phone || '';
+
+                    document.getElementById('gst-rate').value = bill.gstRate || '';
+
+                    // Populate transporter details
+                    document.getElementById('transporter-name').value = bill.transporter.name || '';
+                    document.getElementById('vehicle-number').value = bill.transporter.vehicleNumber || '';
+
+                    // Populate product table
+                    const productContainer = document.getElementById('product-container');
+                    const productTableBody = document.getElementById('product-table').getElementsByTagName('tbody')[0];
+
+                    // Clear the existing rows except the first one (header row)
+                    productTableBody.innerHTML = '';
+
+                    // Loop through the products and add rows
+                    bill.products.forEach((product, index) => {
+                        const row = document.createElement('tr');
+                        row.classList.add('product-row');
+
+                        row.innerHTML = `
+                    <td class="serial-number">${index + 1}</td>
+                    <td>
+                        <input type="text" class="item-code" placeholder="Item Code" value="${product.itemCode || ''}">
+                        <div id="product-suggestions" class="product-dropdown"></div>
+                    </td>
+                    <td><input type="text" class="product-name" placeholder="Product Name" oninput="fetchProducts(this)" value="${product.productName || ''}"></td>
+                    <td><input type="text" class="product-hsn" placeholder="HSN Code" value="${product.hsnCode || ''}"></td>
+                    <td><input type="number" class="product-quantity" placeholder="Quantity" value="${product.quantity || ''}" oninput="updateBill()"></td>
+                    <td><input type="text" class="product-units" placeholder="Units" value="${product.units || ''}"></td>
+                    <td><input type="number" class="product-rate" placeholder="Rate" value="${product.rate || ''}" oninput="updateBill()"></td>
+                    <td class="product-amount">0.00</td>
+                    <td><button type="button" class="delete-row" onclick="deleteRow(this)">X</button></td>
+                `;
+                        productTableBody.appendChild(row);
+                    });
+
+                    // Recalculate totals after populating the rows
+                    updateBill();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message || 'Failed to fetch bill details',
+                    });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred while fetching bill details.',
+                });
+            }
+        }
+
+
+        // Function to update total quantity and total amount
+        function calculateBill() {
+            let totalQuantity = 0;
+            let totalAmount = 0;
+
+            const gstRate = parseFloat(document.getElementById('gst-rate').value) || 0;
+
+            document.querySelectorAll('.product-row').forEach(row => {
+                const quantity = parseFloat(row.querySelector('.product-quantity').value) || 0;
+                const rate = parseFloat(row.querySelector('.product-rate').value) || 0;
+
+                // Calculate the product amount
+                const amount = quantity * rate;
+                row.querySelector('.product-amount').textContent = amount.toFixed(2);
+
+                // Add to totals
+                totalQuantity += quantity;
+                totalAmount += amount;
+            });
+
+            // Update the total quantity in the 'total-quantity' span
+            document.getElementById('total-quantity').textContent = totalQuantity.toFixed(2);
+
+            // Calculate GST amounts and grand total
+            const cgstAmount = (totalAmount * gstRate) / 200; // Divide by 200 because GST is split into CGST and SGST
+            const sgstAmount = cgstAmount;
+            const grandTotal = totalAmount + cgstAmount + sgstAmount;
+
+            // Update totals on the page
+            document.getElementById('total-product-amount').textContent = `₹ ${totalAmount.toFixed(2)}`;
+            document.getElementById('cgst-amount').textContent = `₹ ${cgstAmount.toFixed(2)}`;
+            document.getElementById('sgst-amount').textContent = `₹ ${sgstAmount.toFixed(2)}`;
+            document.getElementById('grand-total').textContent = `₹ ${grandTotal.toFixed(2)}`;
+            document.getElementById('amount-in-words').textContent = convertNumberToWords(grandTotal.toFixed(2));
+
+            // Round off
+            const roundOffAmount = (Math.round(grandTotal) - grandTotal).toFixed(2);
+            document.getElementById('round-off-amount').textContent = `₹ ${roundOffAmount}`;
+        }
+
+        // Attach event listeners to quantity inputs
+        document.querySelectorAll('.product-quantity').forEach(input => {
+            input.addEventListener('input', calculateBill);
+        });
+
+
+        function deleteRow(button) {
+            const row = button.closest("tr");
+            // Check if this is not the first row before deleting
+            if (!row.classList.contains("first-row")) {
+                row.remove();
+                updateSerialNumbers(); // Adjust serial numbers after deletion
+                updateBill();
+            }
+        }
+        function updateSerialNumbers() {
+            const rows = document.querySelectorAll(".product-row");
+            rows.forEach((row, index) => {
+                const serialNumberCell = row.querySelector(".serial-number");
+                if (serialNumberCell) {
+                    serialNumberCell.textContent = index + 1; // Set the serial number starting from 1
+                }
+            });
+        }
+
+
+        function updateBill() {
+            let totalProductAmount = 0;
+            let totalQuantity = 0;
+            const gstRate = parseFloat(document.getElementById('gst-rate').value) || 0;
+
+            // Loop through each product row
+            document.querySelectorAll('.product-row').forEach(row => {
+                const quantity = parseFloat(row.querySelector('.product-quantity').value) || 0;
+                const rate = parseFloat(row.querySelector('.product-rate').value) || 0;
+                const productAmount = quantity * rate;
+
+                // Update the product amount for this row
+                row.querySelector('.product-amount').textContent = '₹ ' + productAmount.toFixed(2);
+
+                // Add to the total product amount and total quantity
+                totalProductAmount += productAmount;
+                totalQuantity += quantity;
+            });
+
+            // Update the total quantity and product amount in the bill summary
+            document.getElementById('total-quantity').textContent = totalQuantity.toFixed(2);
+            document.getElementById('total-product-amount').textContent = '₹ ' + totalProductAmount.toFixed(2);
+
+            // Calculate GST, CGST, SGST
+            const gstAmount = (totalProductAmount * gstRate) / 100;
+            const cgstAmount = gstAmount / 2;
+            const sgstAmount = gstAmount / 2;
+
+            // Calculate round-off amount
+            const roundOffAmount = Math.round(totalProductAmount + gstAmount) - (totalProductAmount + gstAmount);
+
+            // Calculate grand total
+            const grandTotal = totalProductAmount + gstAmount + roundOffAmount;
+
+            // Update the GST fields in the summary
+            document.getElementById('cgst-amount').textContent = '₹ ' + cgstAmount.toFixed(2);
+            document.getElementById('sgst-amount').textContent = '₹ ' + sgstAmount.toFixed(2);
+            document.getElementById('round-off-amount').textContent = '₹ ' + roundOffAmount.toFixed(2);
+            document.getElementById('grand-total').textContent = '₹ ' + grandTotal.toFixed(2);
+
+            // Update the amount in words
+            document.getElementById('amount-in-words').textContent = convertNumberToWords(grandTotal);
+        }
+
+        // Call updateBill whenever a product row is updated
+        document.querySelectorAll('.product-row input').forEach(input => {
+            input.addEventListener('input', updateBill);
+        });
+
+
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const billId = window.location.pathname.split('/').pop();
+            fetchBillDetails(billId);
+        });
+
+        document.querySelector('form.bill-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            updateBill(billId);
+        });
+
+        //send data for update and save it 
+        document.getElementById('save-bill').addEventListener('click', async () => {
+            const billId = window.location.pathname.split('/').pop(); // Extract billId from URL
+
+            // Gather data from the form
+            const invoiceNo = document.getElementById('invoice-no').value;
+            const challanNo = document.getElementById('challan-no').value;
+            const date = document.getElementById('date').value;
+
+            const customer = {
+                customerId: document.getElementById('customerId').value,
+                name: document.getElementById('customer-name').value,
+                gstNumber: document.getElementById('customer-gst').value,
+                pan: document.getElementById('customer-pan').value,
+                registrationType: document.getElementById('reg-type').value,
+                stateCode: document.getElementById('state-code').value,
+                state: document.getElementById('state').value,
+                district: document.getElementById('inputDistrict').value,
+                city: document.getElementById('city').value,
+                street: document.getElementById('street').value,
+                pincode: document.getElementById('pincode').value,
+                phone: document.getElementById('phone').value,
+            };
+
+            // Gather P.O. numbers as an array
+            const poNumbers = Array.from(document.querySelectorAll('[id^="po-no"]')).map(
+                (input) => input.value.trim()
+            ).filter(value => value !== "");
+
+            // Check if any P.O. number is missing
+            if (poNumbers.length === 0) {
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Please add at least one P.O. number.',
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                });
+                return;
+            }
+
+            const transporter = {
+                name: document.getElementById('transporter-name').value,
+                vehicleNumber: document.getElementById('vehicle-number').value,
+            };
+
+            const products = Array.from(document.querySelectorAll('.product-row')).map(row => ({
+                itemCode: row.querySelector('.item-code').value,
+                productName: row.querySelector('.product-name').value,
+                hsnCode: row.querySelector('.product-hsn').value,
+                quantity: parseFloat(row.querySelector('.product-quantity').value) || 0,
+                units: row.querySelector('.product-units').value,
+                rate: parseFloat(row.querySelector('.product-rate').value) || 0,
+                amount: parseFloat(row.querySelector('.product-amount').textContent.replace('₹', '').trim()) || 0,
+            }));
+
+            const gstRate = parseFloat(document.getElementById('gst-rate').value) || 0;
+            const totalQuantity = parseFloat(document.getElementById('total-quantity').textContent) || 0;
+            const totalAmount = parseFloat(document.getElementById('total-product-amount').textContent.replace('₹', '').trim()) || 0;
+            const cgstAmount = parseFloat(document.getElementById('cgst-amount').textContent.replace('₹', '').trim()) || 0;
+            const sgstAmount = parseFloat(document.getElementById('sgst-amount').textContent.replace('₹', '').trim()) || 0;
+            const roundOffAmount = parseFloat(document.getElementById('round-off-amount').textContent.replace('₹', '').trim()) || 0;
+            const grandTotal = parseFloat(document.getElementById('grand-total').textContent.replace('₹', '').trim()) || 0;
+            const amountInWords = document.getElementById('amount-in-words').textContent;
+
+            // Prepare data payload
+            const billData = {
+                invoiceNo,
+                challanNo,
+                date,
+                poNumbers, // Add the array of P.O. numbers
+                customer,
+                transporter,
+                products,
+                gstRate,
+                totalQuantity,
+                totalAmount,
+                cgstAmount,
+                sgstAmount,
+                roundOffAmount,
+                grandTotal,
+                amountInWords,
+            };
+
+            try {
+                // Send data to the server
+                const response = await fetch(`/update-bill/${billId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(billData),
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Updated!',
+                        text: 'Bill updated successfully!',
+                    }).then(() => {
+                        // Redirect to bill list page
+                        window.location.href = '/bill-list';
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: result.message || 'Failed to update the bill.',
+                    });
+                }
+            } catch (error) {
+                console.error('Error updating bill:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred while updating the bill.',
+                });
+            }
+        });
+
+
+    </script>
+    <script>
+        // Initialize Flatpickr with default date as current date
+        document.addEventListener('DOMContentLoaded', () => {
+            flatpickr('.flatpickr', {
+                defaultDate: new Date(), // Set the default date to today
+                dateFormat: 'd-m-Y', // Format: YYYY-MM-DD
+            });
+        });
+    </script>
+
+    <script>
+        let allCustomers = []; // To store all customers fetched on page load
+
+        // Fetch all customers on page load
+        async function fetchAllCustomers() {
+            try {
+                const response = await fetch('/customers');
+                const data = await response.json();
+
+                if (data.success) {
+                    allCustomers = data.customers;
+                    console.log("All customers fetched:", allCustomers);
+                } else {
+                    console.error("Error fetching customers:", data.message);
+                }
+            } catch (error) {
+                console.error("Error fetching customers:", error.message);
+            }
+        }
+
+        // Filter customers based on input value
+        function filterCustomers(inputElement) {
+            const query = inputElement.value.trim().toLowerCase(); // Normalize input
+            const suggestionsDropdown = document.getElementById('customer-suggestions');
+
+            if (!query) {
+                suggestionsDropdown.style.display = 'none'; // Hide if query is empty
+                return;
+            }
+
+            const filteredCustomers = allCustomers.filter(customer => {
+                // Check if customer.customerName exists and is a string before calling toLowerCase
+                if (customer.customerName && typeof customer.customerName === 'string') {
+                    return customer.customerName.toLowerCase().includes(query);
+                } else {
+                    console.warn('Skipping customer without a valid customerName:', customer);
+                    return false;
+                }
+            });
+
+            // Update suggestions dropdown
+            suggestionsDropdown.innerHTML = '';
+            if (filteredCustomers.length > 0) {
+                suggestionsDropdown.style.display = 'block';
+                filteredCustomers.forEach(customer => {
+                    const suggestionItem = document.createElement('div');
+                    suggestionItem.classList.add('suggestion-item');
+
+                    // Display both customerId and customerName
+                    suggestionItem.textContent = `ID: ${customer.customerId} - Name: ${customer.customerName}- Email: ${customer.email}`;
+
+                    suggestionItem.addEventListener('click', () => {
+                        // Use customer.customerId for the input field
+                        inputElement.value = customer.customerName;
+
+                        // Populate other fields with the selected customer's details
+                        document.getElementById('customerId').value = customer.customerId || '';
+                        document.getElementById('customer-gst').value = customer.gstNumber || '';
+                        document.getElementById('customer-pan').value = customer.panNumber || '';
+                        document.getElementById('reg-type').value = customer.registrationType || 'unregistered';
+                        document.getElementById('state-code').value = customer.stateCode || '';
+                        document.getElementById('inputState').value = customer.state || 'SelectState';
+
+                        // Populate the district dropdown based on customer data
+                        const districtDropdown = document.getElementById('inputDistrict');
+                        districtDropdown.innerHTML = '<option value="">-- select one -- </option>'; // Clear previous options
+
+                        // Directly use the customer's district without extra logic
+                        const selectedDistrict = customer.district || '';
+                        const option = document.createElement('option');
+                        option.value = selectedDistrict;
+                        option.textContent = selectedDistrict;
+
+                        if (selectedDistrict) {
+                            option.selected = true; // Pre-select if a district exists
+                        }
+
+                        districtDropdown.appendChild(option);
+
+                        document.getElementById('city').value = customer.city || '';
+                        document.getElementById('street').value = customer.street || '';
+                        document.getElementById('pincode').value = customer.pincode || '';
+                        document.getElementById('phone').value = customer.phone || '';
+
+                        suggestionsDropdown.style.display = 'none';
+                    });
+
+                    suggestionsDropdown.appendChild(suggestionItem);
+                });
+            } else {
+                suggestionsDropdown.style.display = 'none';
+            }
+        }
+
+
+
+        // Fetch customers on page load
+        document.addEventListener('DOMContentLoaded', fetchAllCustomers);
+
+        // Hide dropdown when clicking outside
+        document.addEventListener('click', (event) => {
+            const dropdown = document.getElementById('customer-suggestions');
+            const input = document.getElementById('customer-name');
+            if (!input.contains(event.target) && !dropdown.contains(event.target)) {
+                dropdown.style.display = 'none';
+            }
+        });
+    </script>
+
+    <script>
+        let allProducts = []; // Store all products
+
+        // Fetch products on page load
+        async function fetchAllProducts() {
+            try {
+                const response = await fetch('/get-products');
+                const data = await response.json();
+
+                if (data.success) {
+                    allProducts = data.products;
+                    console.log("All products fetched:", allProducts);
+                } else {
+                    console.error("Error fetching products:", data.message);
+                }
+            } catch (error) {
+                console.error("Error fetching products:", error.message);
+            }
+        }
+
+        // Fetch and display product suggestions based on input
+        function fetchProducts(inputElement) {
+            const query = inputElement.value.trim().toLowerCase(); // Normalize input
+            const suggestionsDropdown = inputElement.nextElementSibling; // Dropdown in the same cell
+
+            if (!query) {
+                suggestionsDropdown.style.display = 'none'; // Hide if query is empty
+                return;
+            }
+
+            // Filter products based on the query
+            const filteredProducts = allProducts.filter(product =>
+                product.productName.toLowerCase().includes(query) || product.itemCode.toLowerCase().includes(query)
+            );
+
+            suggestionsDropdown.innerHTML = ''; // Clear previous suggestions
+            if (filteredProducts.length > 0) {
+                suggestionsDropdown.style.display = 'block'; // Show suggestions
+                filteredProducts.forEach(product => {
+                    const suggestionItem = document.createElement('li');
+                    suggestionItem.classList.add('suggestion-item');
+                    suggestionItem.textContent = `ID: ${product.productId} - Name: ${product.productName}- Item Code: ${product.itemCode}`;
+
+                    suggestionItem.addEventListener('click', () => {
+                        inputElement.value = product.itemCode; // Set item code
+                        const row = inputElement.closest('tr');
+                        row.querySelector('.product-name').value = product.productName; // Set product name
+                        row.querySelector('.product-hsn').value = product.hsnCode; // Set HSN Code
+                        row.querySelector('.product-rate').value = product.rate; // Set rate
+                        suggestionsDropdown.style.display = 'none'; // Hide dropdown
+                        updateBill(); // Update the bill
+                    });
+
+                    suggestionsDropdown.appendChild(suggestionItem);
+                });
+            } else {
+                suggestionsDropdown.style.display = 'none'; // Hide if no matches
+            }
+        }
+
+        // Fetch all products on page load
+        document.addEventListener('DOMContentLoaded', fetchAllProducts);
+
+        // Hide dropdown when clicking outside
+        document.addEventListener('click', (event) => {
+            const dropdowns = document.querySelectorAll('.product-dropdown');
+            dropdowns.forEach(dropdown => {
+                if (!dropdown.contains(event.target) && !dropdown.previousElementSibling.contains(event.target)) {
+                    dropdown.style.display = 'none';
+                }
+            });
+        });
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const poWrapper = document.getElementById("po-wrapper"); // Wrapper for P.O. divs
+            let poCount = 0; // Tracks the number of P.O. inputs
+            const maxPoCount = 5; // Maximum allowed P.O. numbers
+
+            // Function to create a P.O. input field
+            function createPoInput(poNumber = '', index = 1) {
+                const poDiv = document.createElement("div");
+                poDiv.classList.add("form-group", "col-sm-2");
+
+                const poLabel = document.createElement("label");
+                poLabel.setAttribute("for", `po-no-${index}`);
+                poLabel.textContent = `P.O. No ${index}:`;
+
+                const poInput = document.createElement("input");
+                poInput.setAttribute("type", "text");
+                poInput.setAttribute("id", `po-no-${index}`);
+                poInput.setAttribute("name", `po-no-${index}`);
+                poInput.setAttribute("placeholder", "Enter P.O. number");
+                poInput.setAttribute("required", true);
+                poInput.value = poNumber || ''; // Populate with existing data if available
+
+                poDiv.appendChild(poLabel);
+                poDiv.appendChild(poInput);
+
+                return poDiv;
+            }
+
+            // Function to populate P.O. inputs
+            function populatePoInputs(poNumbers = []) {
+                poWrapper.innerHTML = ''; // Clear existing P.O. inputs
+                poCount = 0; // Reset count
+
+                poNumbers.forEach((poNumber, index) => {
+                    poCount++;
+                    const poDiv = createPoInput(poNumber, poCount); // Create a new input for each P.O.
+                    poWrapper.appendChild(poDiv);
+                });
+            }
+
+            // Add P.O. button functionality
+            document.getElementById("add-po").addEventListener("click", function () {
+                if (poCount >= maxPoCount) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Limit Reached',
+                        text: 'You can only add up to 5 P.O. numbers.',
+                        confirmButtonText: 'OK',
+                    });
+                    return;
+                }
+
+                poCount++;
+                const newPoDiv = createPoInput('', poCount); // Empty input for new P.O.
+                poWrapper.appendChild(newPoDiv);
+            });
+
+            // Function to fetch bill details and populate P.O. inputs
+            async function fetchBillDetails(billId) {
+                try {
+                    const response = await fetch(`/get-bill/${billId}`);
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch bill details');
+                    }
+
+                    const data = await response.json();
+                    if (data.success && data.bill) {
+                        const poNumbers = data.bill.poNumbers || []; // Get P.O. numbers
+                        populatePoInputs(poNumbers); // Populate inputs
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message || 'Failed to fetch bill details',
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error fetching bill details:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An error occurred while fetching bill details.',
+                    });
+                }
+            }
+
+            // Replace with actual bill ID dynamically
+            const billId = window.location.pathname.split('/').pop(); // Extract billId from URL
+            fetchBillDetails(billId); // Call the function
+        });
+    </script>
+    <script>
+        var AndraPradesh = ["Anantapur", "Chittoor", "East Godavari", "Guntur", "Kadapa", "Krishna", "Kurnool", "Prakasam", "Nellore", "Srikakulam", "Visakhapatnam", "Vizianagaram", "West Godavari"];
+        var ArunachalPradesh = ["Anjaw", "Changlang", "Dibang Valley", "East Kameng", "East Siang", "Kra Daadi", "Kurung Kumey", "Lohit", "Longding", "Lower Dibang Valley", "Lower Subansiri", "Namsai", "Papum Pare", "Siang", "Tawang", "Tirap", "Upper Siang", "Upper Subansiri", "West Kameng", "West Siang", "Itanagar"];
+        var Assam = ["Baksa", "Barpeta", "Biswanath", "Bongaigaon", "Cachar", "Charaideo", "Chirang", "Darrang", "Dhemaji", "Dhubri", "Dibrugarh", "Goalpara", "Golaghat", "Hailakandi", "Hojai", "Jorhat", "Kamrup Metropolitan", "Kamrup (Rural)", "Karbi Anglong", "Karimganj", "Kokrajhar", "Lakhimpur", "Majuli", "Morigaon", "Nagaon", "Nalbari", "Dima Hasao", "Sivasagar", "Sonitpur", "South Salmara Mankachar", "Tinsukia", "Udalguri", "West Karbi Anglong"];
+        var Bihar = ["Araria", "Arwal", "Aurangabad", "Banka", "Begusarai", "Bhagalpur", "Bhojpur", "Buxar", "Darbhanga", "East Champaran", "Gaya", "Gopalganj", "Jamui", "Jehanabad", "Kaimur", "Katihar", "Khagaria", "Kishanganj", "Lakhisarai", "Madhepura", "Madhubani", "Munger", "Muzaffarpur", "Nalanda", "Nawada", "Patna", "Purnia", "Rohtas", "Saharsa", "Samastipur", "Saran", "Sheikhpura", "Sheohar", "Sitamarhi", "Siwan", "Supaul", "Vaishali", "West Champaran"];
+        var Chhattisgarh = ["Balod", "Baloda Bazar", "Balrampur", "Bastar", "Bemetara", "Bijapur", "Bilaspur", "Dantewada", "Dhamtari", "Durg", "Gariaband", "Janjgir Champa", "Jashpur", "Kabirdham", "Kanker", "Kondagaon", "Korba", "Koriya", "Mahasamund", "Mungeli", "Narayanpur", "Raigarh", "Raipur", "Rajnandgaon", "Sukma", "Surajpur", "Surguja"];
+        var Goa = ["North Goa", "South Goa"];
+        var Gujarat = ["Ahmedabad", "Amreli", "Anand", "Aravalli", "Banaskantha", "Bharuch", "Bhavnagar", "Botad", "Chhota Udaipur", "Dahod", "Dang", "Devbhoomi Dwarka", "Gandhinagar", "Gir Somnath", "Jamnagar", "Junagadh", "Kheda", "Kutch", "Mahisagar", "Mehsana", "Morbi", "Narmada", "Navsari", "Panchmahal", "Patan", "Porbandar", "Rajkot", "Sabarkantha", "Surat", "Surendranagar", "Tapi", "Vadodara", "Valsad"];
+        var Haryana = ["Ambala", "Bhiwani", "Charkhi Dadri", "Faridabad", "Fatehabad", "Gurugram", "Hisar", "Jhajjar", "Jind", "Kaithal", "Karnal", "Kurukshetra", "Mahendragarh", "Mewat", "Palwal", "Panchkula", "Panipat", "Rewari", "Rohtak", "Sirsa", "Sonipat", "Yamunanagar"];
+        var HimachalPradesh = ["Bilaspur", "Chamba", "Hamirpur", "Kangra", "Kinnaur", "Kullu", "Lahaul Spiti", "Mandi", "Shimla", "Sirmaur", "Solan", "Una"];
+        var JammuKashmir = ["Anantnag", "Bandipora", "Baramulla", "Budgam", "Doda", "Ganderbal", "Jammu", "Kargil", "Kathua", "Kishtwar", "Kulgam", "Kupwara", "Leh", "Poonch", "Pulwama", "Rajouri", "Ramban", "Reasi", "Samba", "Shopian", "Srinagar", "Udhampur"];
+        var Jharkhand = ["Bokaro", "Chatra", "Deoghar", "Dhanbad", "Dumka", "East Singhbhum", "Garhwa", "Giridih", "Godda", "Gumla", "Hazaribagh", "Jamtara", "Khunti", "Koderma", "Latehar", "Lohardaga", "Pakur", "Palamu", "Ramgarh", "Ranchi", "Sahebganj", "Seraikela Kharsawan", "Simdega", "West Singhbhum"];
+        var Karnataka = ["Bagalkot", "Bangalore Rural", "Bangalore Urban", "Belgaum", "Bellary", "Bidar", "Vijayapura", "Chamarajanagar", "Chikkaballapur", "Chikkamagaluru", "Chitradurga", "Dakshina Kannada", "Davanagere", "Dharwad", "Gadag", "Gulbarga", "Hassan", "Haveri", "Kodagu", "Kolar", "Koppal", "Mandya", "Mysore", "Raichur", "Ramanagara", "Shimoga", "Tumkur", "Udupi", "Uttara Kannada", "Yadgir"];
+        var Kerala = ["Alappuzha", "Ernakulam", "Idukki", "Kannur", "Kasaragod", "Kollam", "Kottayam", "Kozhikode", "Malappuram", "Palakkad", "Pathanamthitta", "Thiruvananthapuram", "Thrissur", "Wayanad"];
+        var MadhyaPradesh = ["Agar Malwa", "Alirajpur", "Anuppur", "Ashoknagar", "Balaghat", "Barwani", "Betul", "Bhind", "Bhopal", "Burhanpur", "Chhatarpur", "Chhindwara", "Damoh", "Datia", "Dewas", "Dhar", "Dindori", "Guna", "Gwalior", "Harda", "Hoshangabad", "Indore", "Jabalpur", "Jhabua", "Katni", "Khandwa", "Khargone", "Mandla", "Mandsaur", "Morena", "Narsinghpur", "Neemuch", "Panna", "Raisen", "Rajgarh", "Ratlam", "Rewa", "Sagar", "Satna",
+            "Sehore", "Seoni", "Shahdol", "Shajapur", "Sheopur", "Shivpuri", "Sidhi", "Singrauli", "Tikamgarh", "Ujjain", "Umaria", "Vidisha"];
+        var Maharashtra = ["Ahmednagar", "Akola", "Amravati", "Aurangabad", "Beed", "Bhandara", "Buldhana", "Chandrapur", "Dhule", "Gadchiroli", "Gondia", "Hingoli", "Jalgaon", "Jalna", "Kolhapur", "Latur", "Mumbai City", "Mumbai Suburban", "Nagpur", "Nanded", "Nandurbar", "Nashik", "Osmanabad", "Palghar", "Parbhani", "Pune", "Raigad", "Ratnagiri", "Sangli", "Satara", "Sindhudurg", "Solapur", "Thane", "Wardha", "Washim", "Yavatmal"];
+        var Manipur = ["Bishnupur", "Chandel", "Churachandpur", "Imphal East", "Imphal West", "Jiribam", "Kakching", "Kamjong", "Kangpokpi", "Noney", "Pherzawl", "Senapati", "Tamenglong", "Tengnoupal", "Thoubal", "Ukhrul"];
+        var Meghalaya = ["East Garo Hills", "East Jaintia Hills", "East Khasi Hills", "North Garo Hills", "Ri Bhoi", "South Garo Hills", "South West Garo Hills", "South West Khasi Hills", "West Garo Hills", "West Jaintia Hills", "West Khasi Hills"];
+        var Mizoram = ["Aizawl", "Champhai", "Kolasib", "Lawngtlai", "Lunglei", "Mamit", "Saiha", "Serchhip", "Aizawl", "Champhai", "Kolasib", "Lawngtlai", "Lunglei", "Mamit", "Saiha", "Serchhip"];
+        var Nagaland = ["Dimapur", "Kiphire", "Kohima", "Longleng", "Mokokchung", "Mon", "Peren", "Phek", "Tuensang", "Wokha", "Zunheboto"];
+        var Odisha = ["Angul", "Balangir", "Balasore", "Bargarh", "Bhadrak", "Boudh", "Cuttack", "Debagarh", "Dhenkanal", "Gajapati", "Ganjam", "Jagatsinghpur", "Jajpur", "Jharsuguda", "Kalahandi", "Kandhamal", "Kendrapara", "Kendujhar", "Khordha", "Koraput", "Malkangiri", "Mayurbhanj", "Nabarangpur", "Nayagarh", "Nuapada", "Puri", "Rayagada", "Sambalpur", "Subarnapur", "Sundergarh"];
+        var Punjab = ["Amritsar", "Barnala", "Bathinda", "Faridkot", "Fatehgarh Sahib", "Fazilka", "Firozpur", "Gurdaspur", "Hoshiarpur", "Jalandhar", "Kapurthala", "Ludhiana", "Mansa", "Moga", "Mohali", "Muktsar", "Pathankot", "Patiala", "Rupnagar", "Sangrur", "Shaheed Bhagat Singh Nagar", "Tarn Taran"];
+        var Rajasthan = ["Ajmer", "Alwar", "Banswara", "Baran", "Barmer", "Bharatpur", "Bhilwara", "Bikaner", "Bundi", "Chittorgarh", "Churu", "Dausa", "Dholpur", "Dungarpur", "Ganganagar", "Hanumangarh", "Jaipur", "Jaisalmer", "Jalore", "Jhalawar", "Jhunjhunu", "Jodhpur", "Karauli", "Kota", "Nagaur", "Pali", "Pratapgarh", "Rajsamand", "Sawai Madhopur", "Sikar", "Sirohi", "Tonk", "Udaipur"];
+        var Sikkim = ["East Sikkim", "North Sikkim", "South Sikkim", "West Sikkim"];
+        var TamilNadu = ["Ariyalur", "Chennai", "Coimbatore", "Cuddalore", "Dharmapuri", "Dindigul", "Erode", "Kanchipuram", "Kanyakumari", "Karur", "Krishnagiri", "Madurai", "Nagapattinam", "Namakkal", "Nilgiris", "Perambalur", "Pudukkottai", "Ramanathapuram", "Salem", "Sivaganga", "Thanjavur", "Theni", "Thoothukudi", "Tiruchirappalli", "Tirunelveli", "Tiruppur", "Tiruvallur", "Tiruvannamalai", "Tiruvarur", "Vellore", "Viluppuram", "Virudhunagar"];
+        var Telangana = ["Adilabad", "Bhadradri Kothagudem", "Hyderabad", "Jagtial", "Jangaon", "Jayashankar", "Jogulamba", "Kamareddy", "Karimnagar", "Khammam", "Komaram Bheem", "Mahabubabad", "Mahbubnagar", "Mancherial", "Medak", "Medchal", "Nagarkurnool", "Nalgonda", "Nirmal", "Nizamabad", "Peddapalli", "Rajanna Sircilla", "Ranga Reddy", "Sangareddy", "Siddipet", "Suryapet", "Vikarabad", "Wanaparthy", "Warangal Rural", "Warangal Urban", "Yadadri Bhuvanagiri"];
+        var Tripura = ["Dhalai", "Gomati", "Khowai", "North Tripura", "Sepahijala", "South Tripura", "Unakoti", "West Tripura"];
+        var UttarPradesh = ["Agra", "Aligarh", "Allahabad", "Ambedkar Nagar", "Amethi", "Amroha", "Auraiya", "Azamgarh", "Baghpat", "Bahraich", "Ballia", "Balrampur", "Banda", "Barabanki", "Bareilly", "Basti", "Bhadohi", "Bijnor", "Budaun", "Bulandshahr", "Chandauli", "Chitrakoot", "Deoria", "Etah", "Etawah", "Faizabad", "Farrukhabad", "Fatehpur", "Firozabad", "Gautam Buddha Nagar", "Ghaziabad", "Ghazipur", "Gonda", "Gorakhpur", "Hamirpur", "Hapur", "Hardoi", "Hathras", "Jalaun", "Jaunpur", "Jhansi", "Kannauj", "Kanpur Dehat", "Kanpur Nagar", "Kasganj", "Kaushambi", "Kheri", "Kushinagar", "Lalitpur", "Lucknow", "Maharajganj", "Mahoba", "Mainpuri", "Mathura", "Mau", "Meerut", "Mirzapur", "Moradabad", "Muzaffarnagar", "Pilibhit", "Pratapgarh", "Raebareli", "Rampur", "Saharanpur", "Sambhal", "Sant Kabir Nagar", "Shahjahanpur", "Shamli", "Shravasti", "Siddharthnagar", "Sitapur", "Sonbhadra", "Sultanpur", "Unnao", "Varanasi"];
+        var Uttarakhand = ["Almora", "Bageshwar", "Chamoli", "Champawat", "Dehradun", "Haridwar", "Nainital", "Pauri", "Pithoragarh", "Rudraprayag", "Tehri", "Udham Singh Nagar", "Uttarkashi"];
+        var WestBengal = ["Alipurduar", "Bankura", "Birbhum", "Cooch Behar", "Dakshin Dinajpur", "Darjeeling", "Hooghly", "Howrah", "Jalpaiguri", "Jhargram", "Kalimpong", "Kolkata", "Malda", "Murshidabad", "Nadia", "North 24 Parganas", "Paschim Bardhaman", "Paschim Medinipur", "Purba Bardhaman", "Purba Medinipur", "Purulia", "South 24 Parganas", "Uttar Dinajpur"];
+        var AndamanNicobar = ["Nicobar", "North Middle Andaman", "South Andaman"];
+        var Chandigarh = ["Chandigarh"];
+        var DadraHaveli = ["Dadra Nagar Haveli"];
+        var DamanDiu = ["Daman", "Diu"];
+        var Delhi = ["Central Delhi", "East Delhi", "New Delhi", "North Delhi", "North East Delhi", "North West Delhi", "Shahdara", "South Delhi", "South East Delhi", "South West Delhi", "West Delhi"];
+        var Lakshadweep = ["Lakshadweep"];
+        var Puducherry = ["Karaikal", "Mahe", "Puducherry", "Yanam"];
+
+
+        $("#state").change(function () {
+            var StateSelected = $(this).val();
+            var optionsList;
+            var htmlString = "";
+
+            switch (StateSelected) {
+                case "Andra Pradesh":
+                    optionsList = AndraPradesh;
+                    break;
+                case "Arunachal Pradesh":
+                    optionsList = ArunachalPradesh;
+                    break;
+                case "Assam":
+                    optionsList = Assam;
+                    break;
+                case "Bihar":
+                    optionsList = Bihar;
+                    break;
+                case "Chhattisgarh":
+                    optionsList = Chhattisgarh;
+                    break;
+                case "Goa":
+                    optionsList = Goa;
+                    break;
+                case "Gujarat":
+                    optionsList = Gujarat;
+                    break;
+                case "Haryana":
+                    optionsList = Haryana;
+                    break;
+                case "Himachal Pradesh":
+                    optionsList = HimachalPradesh;
+                    break;
+                case "Jammu and Kashmir":
+                    optionsList = JammuKashmir;
+                    break;
+                case "Jharkhand":
+                    optionsList = Jharkhand;
+                    break;
+                case "Karnataka":
+                    optionsList = Karnataka;
+                    break;
+                case "Kerala":
+                    optionsList = Kerala;
+                    break;
+                case "Madya Pradesh":
+                    optionsList = MadhyaPradesh;
+                    break;
+                case "Maharashtra":
+                    optionsList = Maharashtra;
+                    break;
+                case "Manipur":
+                    optionsList = Manipur;
+                    break;
+                case "Meghalaya":
+                    optionsList = Meghalaya;
+                    break;
+                case "Mizoram":
+                    optionsList = Mizoram;
+                    break;
+                case "Nagaland":
+                    optionsList = Nagaland;
+                    break;
+                case "Orissa":
+                    optionsList = Orissa;
+                    break;
+                case "Punjab":
+                    optionsList = Punjab;
+                    break;
+                case "Rajasthan":
+                    optionsList = Rajasthan;
+                    break;
+                case "Sikkim":
+                    optionsList = Sikkim;
+                    break;
+                case "Tamil Nadu":
+                    optionsList = TamilNadu;
+                    break;
+                case "Telangana":
+                    optionsList = Telangana;
+                    break;
+                case "Tripura":
+                    optionsList = Tripura;
+                    break;
+                case "Uttaranchal":
+                    optionsList = Uttaranchal;
+                    break;
+                case "Uttar Pradesh":
+                    optionsList = UttarPradesh;
+                    break;
+                case "West Bengal":
+                    optionsList = WestBengal;
+                    break;
+                case "Andaman and Nicobar Islands":
+                    optionsList = AndamanNicobar;
+                    break;
+                case "Chandigarh":
+                    optionsList = Chandigarh;
+                    break;
+                case "Dadar and Nagar Haveli":
+                    optionsList = DadraHaveli;
+                    break;
+                case "Daman and Diu":
+                    optionsList = DamanDiu;
+                    break;
+                case "Delhi":
+                    optionsList = Delhi;
+                    break;
+                case "Lakshadeep":
+                    optionsList = Lakshadeep;
+                    break;
+                case "Pondicherry":
+                    optionsList = Pondicherry;
+                    break;
+            }
+
+            for (var i = 0; i < optionsList.length; i++) {
+                htmlString = htmlString + "<option value='" + optionsList[i] + "'>" + optionsList[i] + "</option>";
+            }
+            $("#inputDistrict").html(htmlString);
+
+        });    
+    </script>
+</body>
+
+</html>

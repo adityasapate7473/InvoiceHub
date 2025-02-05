@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - InvoiceHub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/home.css">
+  <link rel="stylesheet" href="/css/navbar.css">
+  <link rel="icon" type="icon" href="./images/icon_r.png">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url("images/background.jpg") no-repeat center center fixed;
+      background-size: cover;
+      opacity: 0.1;
+      z-index: -1;
+    }
+  </style>
+</head>
+
+<body>
+
+  {{> navbar}}
+
+  <div class="container">
+    <section class="overview">
+      <h1>Welcome to InvoiceHub</h1>
+      <p>Your one-stop solution for billing, statistics, and customer management.</p>
+      <div class="stats-container">
+        <div class="stat-box">
+          <i class="fas fa-user-friends stat-icon"></i>
+          <div>
+            <h3>{{numCustomers}}</h3>
+            <p>Customers</p>
+          </div>
+        </div>
+
+        <div class="stat-box">
+          <i class="fa-solid fa-shipping-fast stat-icon"></i>
+          <div>
+            <h3>{{numTransporters}}</h3>
+            <p>Transporters</p>
+          </div>
+        </div>
+        <div class="stat-box">
+          <i class="fas fa-file-invoice-dollar stat-icon"></i>
+          <div>
+            <h3>{{totalBills}}</h3>
+            <p>Bills Generated</p>
+          </div>
+        </div>
+
+        <div class="stat-box">
+          <i class="fas fa-box stat-icon"></i>
+          <div>
+            <h3>{{numProducts}}</h3>
+            <p>Products</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sales-summary">
+      <div class="sales-summary-header">
+        <h2>Sales Summary</h2>
+      </div>
+      <div class="sales-summary-container">
+        <!-- GST Sales Summary -->
+        <div class="sales-box gst-sales">
+          <h3>GST Sales</h3>
+          <p>GST Bills Generated: {{numBills}}</p>
+          <p>Total Sales: ₹{{totalSales}}</p>
+          <p>GST Collected: ₹{{totalGST}}</p>
+        </div>
+
+        <!-- Non-GST Sales Summary -->
+        <div class="sales-box non-gst-sales">
+          <h3>Non-GST Sales</h3>
+          <p>Non-GST Bills Generated: {{nonGSTBillsGenerated}}</p>
+          <p>Total Sales: ₹{{noGSTSales}}</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="/js/dashboard.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/js/all.min.js"></script>
+</body>
+
+</html>

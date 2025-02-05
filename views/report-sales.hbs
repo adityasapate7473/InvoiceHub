@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Report Dashboard</title>
+    <link rel="stylesheet" href="/css/navbar.css">
+    <link rel="stylesheet" href="/css/report.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.0/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.2.1/Chart.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <style>
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("images/background.jpg") no-repeat center center fixed;
+            background-size: cover;
+            opacity: 0.1;
+            z-index: -1;
+        }
+
+        .filters-container {
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .filters-container label {
+            margin-right: 5px;
+            font-weight: 500;
+        }
+
+        .filters-container select,
+        .filters-container input {
+            margin-bottom: 10px;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .filters-container button {
+            padding: 8px 16px;
+            background: #6482AD;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .filters-container button:hover {
+            background: #4a6b8a;
+        }
+
+        @media print {
+            #download-button {
+                display: none !important;
+            }
+
+            .download-button {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    {{> navbar}}
+    <div class="container">
+        <!-- Download Button -->
+        <div class="download-button" id="download-button">
+            <button onclick="printOrDownloadReport()">Print/Download Report</button>
+        </div>
+        <div class="filters-container">
+            <h3>Filters</h3>
+            <!-- Date Range Filter -->
+            <label for="startDate">Start Date:</label>
+            <input type="date" id="startDate">
+            <label for="endDate">End Date:</label>
+            <input type="date" id="endDate">
+            <br>
+
+            <!-- Month Filter -->
+            <label for="monthFilter">Month:</label>
+            <select id="monthFilter">
+                <option value="">Select Month</option>
+                <option value="1">January</option>
+                <option value="2">February</option>
+                <option value="3">March</option>
+                <option value="4">April</option>
+                <option value="5">May</option>
+                <option value="6">June</option>
+                <option value="7">July</option>
+                <option value="8">August</option>
+                <option value="9">September</option>
+                <option value="10">October</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
+            </select>
+            <br>
+
+            <!-- Quarter Filter -->
+            <label for="quarterFilter">Quarter:</label>
+            <select id="quarterFilter">
+                <option value="">Select Quarter</option>
+                <option value="1">January - March</option>
+                <option value="2">April - June</option>
+                <option value="3">July - September</option>
+                <option value="4">October - December</option>
+            </select>
+            <br>
+
+            <!-- Year Filter -->
+            <label for="yearFilter">Year:</label>
+            <input type="number" id="yearFilter" placeholder="Enter Year" min="2000" max="2100">
+            <br>
+
+            <button onclick="applyFilters()">Apply Filters</button>
+        </div>
+
+        <div class="dashboard-container">
+
+            <!-- Summary Cards -->
+            <div class="summary-and-chart">
+                <!-- Summary Cards -->
+                <div class="summary-cards">
+                    <div class="summary-card">
+                        <h2>₹50,000</h2>
+                        <p>Total Sales</p>
+                    </div>
+                    <div class="summary-card">
+                        <h2>200</h2>
+                        <p>Total Customers</p>
+                    </div>
+                    <div class="summary-card">
+                        <h2>GST: ₹30,000</h2>
+                        <p>GST Sales</p>
+                    </div>
+                    <div class="summary-card">
+                        <h2>Non-GST: ₹20,000</h2>
+                        <p>Non-GST Sales</p>
+                    </div>
+                </div>
+
+                <!-- Chart Section -->
+                <div class="chart-container">
+                    <canvas id="salesChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Table Section -->
+            <div class="report-table">
+                <h2>Sales Report</h2>
+
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Customer ID</th>
+                            <th>Customer Name</th>
+                            <th>Phone</th>
+                            <th>Bill Count</th>
+                            <th>Total Quantity</th>
+                            <th>Total Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Table Rows -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.0/dist/sweetalert2.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        async function fetchSummary(filters = {}) {
+            try {
+                // Construct query parameters
+                const queryParams = new URLSearchParams(filters).toString();
+                const response = await fetch(`/salesreport/summary?${queryParams}`);
+                const data = await response.json();
+                console.log('Summary Data:', data); // Debug log
+
+                document.querySelector('.summary-cards .summary-card:nth-child(1) h2').textContent = `₹${data.totalSales}`;
+                document.querySelector('.summary-cards .summary-card:nth-child(2) h2').textContent = `${data.totalCustomers}`;
+                document.querySelector('.summary-cards .summary-card:nth-child(3) h2').textContent = `GST: ₹${data.gstSales}`;
+                document.querySelector('.summary-cards .summary-card:nth-child(4) h2').textContent = `Non-GST: ₹${data.nonGstSales}`;
+
+                updateChart(data.gstSales, data.nonGstSales);
+            } catch (error) {
+                console.error('Error fetching summary:', error);
+            }
+        }
+
+
+        async function fetchCustomers() {
+            try {
+                const response = await fetch('/salesreport/customers');
+                const customers = await response.json();
+
+                console.log("Customers : ", customers);
+
+                const tableBody = document.querySelector('.report-table tbody');
+                tableBody.innerHTML = '';
+
+                customers.forEach((customer) => {
+                    const row = `
+                <tr>
+                    <td>${customer.customerId || 'N/A'}</td>
+                    <td>${customer.customerName || 'N/A'}</td>
+                    <td>${customer.phone || 'N/A'}</td>
+                    <td>${customer.totalBills || 0}</td>
+                    <td>${customer.totalQuantity || 0}</td>
+                    <td>₹${customer.totalAmount ? customer.totalAmount.toFixed(2) : '0.00'}</td>
+                </tr>
+            `;
+                    tableBody.insertAdjacentHTML('beforeend', row);
+                });
+            } catch (error) {
+                console.error('Error fetching customers:', error);
+            }
+        }
+
+        async function applyFilters() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const month = document.getElementById('monthFilter').value;
+            const quarter = document.getElementById('quarterFilter').value;
+            const year = document.getElementById('yearFilter').value;
+
+            // Build the query string based on selected filters
+            const query = new URLSearchParams({
+                startDate,
+                endDate,
+                month,
+                quarter,
+                year,
+            });
+
+            // Build the query string based on selected filters
+            const filters = {};
+
+            if (startDate) filters.startDate = startDate;
+            if (endDate) filters.endDate = endDate;
+            if (month) filters.month = month;
+            if (quarter) filters.quarter = quarter;
+            if (year) filters.year = year;
+
+            await fetchSummary(filters); // Pass filters to summary function
+
+            try {
+                const response = await fetch(`/salesreport/customers?${query}`);
+                const customers = await response.json();
+
+                const tableBody = document.querySelector('.report-table tbody');
+                tableBody.innerHTML = '';
+
+                customers.forEach((customer) => {
+                    const row = `
+                <tr>
+                    <td>${customer.customerId || 'N/A'}</td>
+                    <td>${customer.customerName || 'N/A'}</td>
+                    <td>${customer.phone || 'N/A'}</td>
+                    <td>${customer.totalBills || 0}</td>
+                    <td>${customer.totalQuantity || 0}</td>
+                    <td>₹${customer.totalAmount ? customer.totalAmount.toFixed(2) : '0.00'}</td>
+                </tr>
+            `;
+                    tableBody.insertAdjacentHTML('beforeend', row);
+                });
+            } catch (error) {
+                console.error('Error applying filters:', error);
+            }
+        }
+
+
+        function updateChart(gstSales, nonGstSales) {
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['GST Sales', 'Non-GST Sales'],
+                    datasets: [{
+                        data: [gstSales, nonGstSales],
+                        backgroundColor: ['#6482AD', '#FFB400'],
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                    },
+                },
+            });
+        }
+
+        async function printOrDownloadReport() {
+            const container = document.querySelector('.dashboard-container');
+            const canvas = await html2canvas(container, { scale: 2 });
+            const imgData = canvas.toDataURL('image/png');
+
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const imgProps = pdf.getImageProperties(imgData);
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+
+            // Print or Download Confirmation
+            Swal.fire({
+                title: 'Download the report?',
+                text: 'You can download the report by clicking below.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: '<i class="fas fa-download"></i> Download',
+                cancelButtonText: '<i class="fas fa-times"></i> Cancel',
+                customClass: {
+                    popup: 'custom-popup',
+                    title: 'popup-title',
+                    confirmButton: 'popup-confirm-button',
+                    cancelButton: 'popup-cancel-button',
+                },
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    pdf.save('Sales_Report.pdf'); // Save the PDF with the customer name and ID in the filename
+                }
+            });
+        }
+
+        // Fetch data on load
+        fetchSummary();
+        fetchCustomers();
+    </script>
+
+</body>
+
+</html>

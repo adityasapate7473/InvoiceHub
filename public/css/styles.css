@@ -1,0 +1,132 @@
+/* Universal Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url("images/background.jpg") no-repeat center center fixed;
+  background-size: cover;
+  opacity: 0.1;
+  /* Adjust this value to set the opacity (0.1 to 1) */
+  z-index: -1;
+  /* Ensure it stays behind the content */
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  /* Full-screen height */
+}
+
+.form-container {
+  background: rgba(255, 255, 255, 0.9);
+  /* Semi-transparent white background */
+  padding: 40px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  width: 500px;
+  /* Increased width for better spacing */
+  max-width: 90%;
+  /* Ensures it adjusts to smaller screens */
+  border-left: 4px solid #6482AD;
+  /* Primary blue accent on the left */
+  text-align: center;
+  /* Center-align all content */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+
+}
+
+.logo {
+  width: 100px;
+  /* Set the logo size */
+  height: auto;
+  margin-bottom: 20px;
+  /* Space between logo and login text */
+}
+
+h2 {
+  text-align: center;
+  color: #6482AD;
+  /* Primary blue for headings */
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.input-field {
+  margin-bottom: 15px;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #7FA1C3;
+  /* Light blue border */
+  border-radius: 6px;
+  font-size: 16px;
+  color: #333;
+  transition: border-color 0.3s;
+  text-align: center;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus {
+  outline: none;
+  border-color: #6482AD;
+  /* Focus border color in primary blue */
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  background-color: #6482AD;
+  /* Primary blue for button background */
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #7FA1C3;
+  /* Hover state: lighter blue */
+}
+
+.form-footer {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.form-footer p {
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.form-footer a {
+  color: #6482AD;
+  /* Link color in primary blue */
+  text-decoration: none;
+}
+a {
+  text-decoration: none;
+  color: #6482AD;
+}
+
+a:hover {
+  color: rgb(83, 1, 110);
+}

@@ -1,0 +1,134 @@
+/* General styles */
+body {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #F8F9FD;
+}
+
+/* Container styling */
+.container {
+  width: 95%;
+  margin: 0 auto;
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 15px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Overview section */
+.overview h1 {
+  text-align: center;
+  color: #4C5B61;
+  margin: 0;
+}
+
+.overview p {
+  text-align: center;
+  color: #7A8C99;
+  font-size: 16px;
+  margin: 10px 0 30px;
+}
+
+/* Stats section */
+.stats-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.stat-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: linear-gradient(135deg, #74cbeb, #9face6);
+  border-radius: 15px;
+  color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  flex:1;
+  min-width: 280px;
+  height: 200px;
+  transition: transform 0.3s;
+}
+
+.stat-box:hover,.sales-box:hover {
+  transform: translateY(-5px);
+}
+
+.stat-icon {
+  font-size: 40px;
+}
+
+.stat-box h3 {
+  font-size: 28px;
+  margin: 5px 0 0;
+  text-align: center;
+}
+
+/* Sales Summary Section */
+.sales-summary {
+  margin-top: 40px;
+}
+
+.sales-summary-header h2 {
+  font-size: 24px;
+  text-align: center;
+  color: #4C5B61;
+  margin-bottom: 20px;
+}
+
+.sales-summary-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.sales-box {
+  flex: 1 1 48%;
+  background: linear-gradient(135deg, #F8B195, #F67280);
+  border-radius: 15px;
+  color: white;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  height: 150px;
+}
+
+.sales-box h3 {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.sales-box p {
+  font-size: 16px;
+  margin: 5px 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .sales-summary-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .sales-box {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sales-box h3 {
+    font-size: 18px;
+  }
+
+  .sales-box p {
+    font-size: 14px;
+  }
+}

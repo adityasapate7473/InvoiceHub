@@ -1,0 +1,217 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Customer</title>
+    <link rel="stylesheet" href="/css/navbar.css">
+    <link rel="stylesheet" href="/css/register-customer.css">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.5.4/dist/sweetalert2.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("images/background.jpg") no-repeat center center fixed;
+            background-size: cover;
+            opacity: 0.1;
+            /* Adjust this value to set the opacity (0.1 to 1) */
+            z-index: -1;
+            /* Ensure it stays behind the content */
+        }
+    </style>
+</head>
+
+<body>
+    {{> navbar}}
+    <div class="container">
+
+        <button class="customer-list-btn" onclick="window.location.href='/customer-list'">Customer List</button>
+
+        <h4>Edit Customer</h4>
+
+        <!-- Registration Form Section -->
+        <div class="section">
+            <form id="customer-form" class="form-row">
+                <input type="hidden" id="customerID" name="customerID" readonly>
+
+                <!-- First Row -->
+                <div class="form-group">
+                    <label for="customer-id">Customer ID</label>
+                    <input type="text" id="customer-id" name="customer-id" required readonly>
+                </div>
+                <div class="form-group">
+                    <label for="customer-name">Customer Name</label>
+                    <input type="text" id="customer-name" name="customer-name" placeholder="Enter Customer Name"
+                        required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="Enter Customer Email" required>
+                </div>
+
+                <!-- Second Row -->
+                <div class="form-group">
+                    <label for="phone">Phone</label>
+                    <input type="tel" id="phone" name="phone" placeholder="Enter Customer Phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="gst-number">GST Number</label>
+                    <input type="text" id="gst-number" name="gst-number" placeholder="Enter Customer GST Number"
+                        required>
+                </div>
+                <div class="form-group">
+                    <label for="pan-number">PAN Number</label>
+                    <input type="text" id="pan-number" name="pan-number" placeholder="Enter Customer PAN Number"
+                        required>
+                </div>
+                <div class="form-group">
+                    <label for="state-code">State Code</label>
+                    <input type="text" id="state-code" name="state-code" placeholder="Enter Customer State Code"
+                        required>
+                </div>
+                <div class="form-group">
+                    <label for="state">State</label>
+                    <input type="text" id="state" name="state" placeholder="Enter Customer State" required>
+                </div>
+
+                <!-- Third Row -->
+                <div class="form-group">
+                    <label for="district">District</label>
+                    <input type="text" id="district" name="district" placeholder="Enter Customer District" required>
+                </div>
+                <div class="form-group">
+                    <label for="city">City</label>
+                    <input type="text" id="city" name="city" placeholder="Enter Customer City" required>
+                </div>
+                 <div class="form-group">
+                    <label for="street">Street</label>
+                    <input type="text" id="street" name="street" placeholder="Enter Customer Street" required>
+                </div>
+                <div class="form-group">
+                    <label for="pincode">Pincode</label>
+                    <input type="text" id="pincode" name="pincode" placeholder="Enter Customer Pincode" required>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit">Update Customer</button>
+            </form>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const customerId = urlParams.get('customerId'); // Assuming you are passing the customer ID in the URL
+
+            if (!customerId) {
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Customer ID is missing.',
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                });
+                return;
+            }
+
+            try {
+                const response = await fetch(`/get-customer/${customerId}`); // Adjust the route as per your setup
+                const result = await response.json();
+
+                if (result.success && result.customer) {
+                    // Populate form fields with customer data
+                    document.getElementById('customerID').value = result.customer._id; // Assuming _id is the customer ID
+                    document.getElementById('customer-id').value = result.customer.customerId; // Assuming _id is the customer ID
+                    document.getElementById('customer-name').value = result.customer.customerName;
+                    document.getElementById('email').value = result.customer.email;
+                    document.getElementById('phone').value = result.customer.phone;
+                    document.getElementById('gst-number').value = result.customer.gstNumber;
+                    document.getElementById('pan-number').value = result.customer.panNumber;
+                    document.getElementById('state-code').value = result.customer.stateCode;
+                    document.getElementById('state').value = result.customer.state;
+                    document.getElementById('district').value = result.customer.district;
+                    document.getElementById('city').value = result.customer.city;
+                    document.getElementById('street').value = result.customer.street;
+                    document.getElementById('pincode').value = result.customer.pincode;
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: result.message || 'Customer not found.',
+                        icon: 'error',
+                        confirmButtonText: 'OK',
+                    });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Something went wrong. Please try again later.',
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                });
+            }
+        });
+
+        document.getElementById('customer-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const customerData = {
+                customerName: document.getElementById('customer-name').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                gstNumber: document.getElementById('gst-number').value,
+                panNumber: document.getElementById('pan-number').value,
+                state: document.getElementById('state').value,
+                district: document.getElementById('district').value,
+                city: document.getElementById('city').value,
+                street: document.getElementById('street').value,
+                pincode: document.getElementById('pincode').value,
+            };
+
+            const customerId = document.getElementById('customerID').value; // Get customer ID from the form
+
+            try {
+                const response = await fetch(`/update-customer/${customerId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(customerData),
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Customer updated successfully.',
+                        icon: 'success',
+                        timer: 1500,
+                        showConfirmButton: false,
+                    }).then(() => window.location.href = '/customer-list');
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: result.message || 'Failed to update customer.',
+                        icon: 'error',
+                        confirmButtonText: 'OK',
+                    });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Something went wrong. Please try again later.',
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

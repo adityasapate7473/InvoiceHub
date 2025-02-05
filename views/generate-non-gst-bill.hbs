@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate Non GST Bill - InvoiceHub</title>
+    <link rel="stylesheet" href="/css/navbar.css">
+    <link rel="stylesheet" href="/css/generate-bill.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("images/background.jpg") no-repeat center center fixed;
+            background-size: cover;
+            opacity: 0.1;
+            /* Adjust this value to set the opacity (0.1 to 1) */
+            z-index: -1;
+            /* Ensure it stays behind the content */
+        }
+
+        input[readonly] {
+            background-color: #f0f0f0;
+            /* Light gray background */
+            cursor: not-allowed;
+            /* Change cursor to indicate it's not editable */
+        }
+    </style>
+    <style>
+        /* Custom dropdown container */
+        .custom-dropdown {
+            position: absolute;
+            /* Absolute positioning for flexibility */
+            top: calc(100% + 5px);
+            /* 5px space below the input field */
+            left: 12px;
+            width: 92.5%;
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            display: none;
+            /* Initially hidden */
+        }
+
+        /* Adjust the positioning of the parent container to enable proper dropdown positioning */
+        .form-group {
+            position: relative;
+        }
+
+        /* Individual suggestion items */
+        .custom-dropdown .suggestion-item {
+            padding: 10px 12px;
+            cursor: pointer;
+            font-size: 14px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.2s, padding-left 0.2s;
+        }
+
+        /* Hover effect */
+        .custom-dropdown .suggestion-item:hover {
+            background-color: #f9f9f9;
+            padding-left: 16px;
+        }
+
+        /* Last suggestion item without a border */
+        .custom-dropdown .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .custom-dropdown .suggestion-item {
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+        }
+
+        .product-dropdown {
+            display: none;
+            /* Hidden by default */
+            position: absolute;
+            background-color: white;
+            border: 1px solid #b3b3b3;
+            width: 30%;
+            max-height: 150px;
+            overflow-y: auto;
+            z-index: 9999;
+            text-align: start;
+            border-radius: 10px;
+        }
+
+        .suggestion-item {
+            padding: 10px 12px;
+            cursor: pointer;
+            font-size: 14px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.2s, padding-left 0.2s;
+        }
+
+        .suggestion-item:hover {
+            background-color: #f9f9f9;
+            padding-left: 16px;
+        }
+
+        #po-wrapper {
+            display: flex;
+            /* Enables flex layout */
+            gap: 5px;
+            /* Adds space between inputs */
+            flex-wrap: nowrap;
+            /* Prevents wrapping */
+            overflow-x: hidden;
+            /* Enables horizontal scrolling if needed */
+        }
+
+        #po-wrapper .form-group {
+            flex: 1;
+            /* Adjust width dynamically to fit the container */
+            min-width: 150px;
+            /* Ensure inputs remain readable */
+        }
+    </style>
+</head>
+
+<body>
+    {{> navbar}}
+
+    <div class="container">
+        <button class="product-list-btn" onclick="window.location.href='/non-gst-bill-list'">Non GST Bill List</button>
+
+        <h4 style="text-align: center; color: #6482AD; font-weight: 600;">Generate Non GST Bill</h4>
+
+        <form class="bill-form" autocomplete="off">
+            <!-- Customer Information -->
+            <div class="section">
+                <!-- Invoice and Document Details -->
+                <h4>Invoice Details</h4>
+                <div class="row">
+                    <div class="form-group col-sm-4">
+                        <label for="invoice-no">Invoice No:</label>
+                        <input type="text" id="invoice-no" name="invoice-no" placeholder="Invoice Number" readonly>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label for="challan-no">Challan No:</label>
+                        <input type="text" id="challan-no" name="challan-no" placeholder="Challan Number" readonly>
+                    </div>
+
+                    <div class="form-group col-sm-4">
+                        <label for="date">Date:</label>
+                        <div class="input-with-icon">
+                            <input type="text" id="date" class="flatpickr" placeholder="Select Date"
+                                style="background-color: #fff;" required>
+                            <span class="calendar-icon">&#128197;</span> <!-- Unicode for calendar icon -->
+                        </div>
+                    </div>
+                </div>
+                <!-- Customer Information -->
+                <h4 style="margin-top: 20px;">Customer Details</h4>
+                <div class="row">
+
+                    <div class="form-group col-sm-3">
+                        <label for="customer-name">Customer Name:</label>
+                        <input type="text" id="customer-name" placeholder="Enter customer name"
+                            oninput="filterCustomers(this)" required autocomplete="off">
+                        <div id="customer-suggestions" class="custom-dropdown"></div>
+                        <!-- Custom suggestion dropdown -->
+                    </div>
+                    <input type="hidden" id="customerId" required readonly>
+
+                    <div class="form-group col-sm-3">
+                        <label for="state-code">State Code:</label>
+                        <input type="text" id="state-code" placeholder="Enter state code" required>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label for="state">State:</label>
+                        <select class="form-control" id="inputState" name="state" required>
+                            <option value="SelectState">Select State</option>
+                            <option value="Andra Pradesh">Andra Pradesh</option>
+                            <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                            <option value="Assam">Assam</option>
+                            <option value="Bihar">Bihar</option>
+                            <option value="Chhattisgarh">Chhattisgarh</option>
+                            <option value="Goa">Goa</option>
+                            <option value="Gujarat">Gujarat</option>
+                            <option value="Haryana">Haryana</option>
+                            <option value="Himachal Pradesh">Himachal Pradesh</option>
+                            <option value="Jammu and Kashmir">Jammu and Kashmir</option>
+                            <option value="Jharkhand">Jharkhand</option>
+                            <option value="Karnataka">Karnataka</option>
+                            <option value="Kerala">Kerala</option>
+                            <option value="Madya Pradesh">Madya Pradesh</option>
+                            <option value="Maharashtra">Maharashtra</option>
+                            <option value="Manipur">Manipur</option>
+                            <option value="Meghalaya">Meghalaya</option>
+                            <option value="Mizoram">Mizoram</option>
+                            <option value="Nagaland">Nagaland</option>
+                            <option value="Orissa">Orissa</option>
+                            <option value="Punjab">Punjab</option>
+                            <option value="Rajasthan">Rajasthan</option>
+                            <option value="Sikkim">Sikkim</option>
+                            <option value="Tamil Nadu">Tamil Nadu</option>
+                            <option value="Telangana">Telangana</option>
+                            <option value="Tripura">Tripura</option>
+                            <option value="Uttaranchal">Uttaranchal</option>
+                            <option value="Uttar Pradesh">Uttar Pradesh</option>
+                            <option value="West Bengal">West Bengal</option>
+                            <option disabled style="background-color:#aaa; color:#fff">UNION Territories</option>
+                            <option value="Andaman and Nicobar Islands">Andaman and Nicobar Islands</option>
+                            <option value="Chandigarh">Chandigarh</option>
+                            <option value="Dadar and Nagar Haveli">Dadar and Nagar Haveli</option>
+                            <option value="Daman and Diu">Daman and Diu</option>
+                            <option value="Delhi">Delhi</option>
+                            <option value="Lakshadeep">Lakshadeep</option>
+                            <option value="Pondicherry">Pondicherry</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label for="district">District:</label>
+                        <select class="form-control" id="inputDistrict" name="district" required>
+                            <option value="">-- select one -- </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-sm-3">
+                        <label for="city">Village/City/Town:</label>
+                        <input type="text" id="city" placeholder="Enter village, city, or town" required>
+                    </div>
+                    <div class="form-group col-sm-3">
+                        <label for="street">Street:</label>
+                        <input type="text" id="street" placeholder="Enter street name" required>
+                    </div>
+                    <div class="form-group col-sm-3">
+                        <label for="pincode">PinCode:</label>
+                        <input type="number" id="pincode" placeholder="Enter PinCode" required>
+                    </div>
+                    <div class="form-group col-sm-3">
+                        <label for="phone">Phone No:</label>
+                        <input type="number" id="phone" placeholder="Enter Phone Number" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Information -->
+            <div class="section">
+                <h4>Product Details</h4>
+                <div id="product-container" class="product-table-wrapper">
+                    <table id="product-table">
+                        <thead>
+                            <tr>
+                                <th>SN</th>
+                                <th>Item Code</th>
+                                <th>Product Name</th>
+                                <th>HSN Code</th>
+                                <th>Quantity</th>
+                                <th>Units</th>
+                                <th>Rate</th>
+                                <th>Amount</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="product-container">
+                            <tr class="product-row first-row">
+                                <td class="serial-number">1</td>
+                                <td>
+                                    <input type="text" class="item-code" placeholder="Item Code"
+                                        oninput="fetchProducts(this)" required>
+                                    <div id="product-suggestions" class="product-dropdown"></div>
+                                </td>
+                                <td><input type="text" class="product-name" placeholder="Product Name" required></td>
+                                <td><input type="text" class="product-hsn" placeholder="HSN Code"></td>
+                                <td><input type="number" class="product-quantity" placeholder="Quantity"
+                                        oninput="updateBill()" required></td>
+                                <td><input type="text" class="product-units" placeholder="Units"></td>
+                                <td><input type="number" class="product-rate" placeholder="Rate" oninput="updateBill()"
+                                        required></td>
+                                <td class="product-amount">0.00</td>
+                                <td><button type="button" class="delete-row" onclick="deleteRow(this)">X</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p style="margin-top: 15px;"><strong>Total Quantity:</strong> <span id="total-quantity">0.00</span></p>
+                <button type="button" id="add-product" class="secondary-btn">+ Add Another Product</button>
+            </div>
+
+            <!-- Bill Summary Section -->
+            <div class="section">
+                <h4>Bill Summary</h4>
+                <div class=" row">
+                    <div class="form-group col-sm-4 product-total">
+                        <label for="total-product-amount">Total Product Amount:</label>
+                        <p id="total-product-amount">₹ 0.00</p>
+                    </div>
+
+
+                    <div class="form-group col-sm-4">
+                        <label for="round-off-amount">Round Off Amount:</label>
+                        <p id="round-off-amount">₹ 0.00</p>
+                    </div>
+                    <div class="form-group col-sm-4 grand-total">
+                        <label for="grand-total">Grand Total:</label>
+                        <p id="grand-total">₹ 0.00</p>
+                    </div>
+                    <div class="form-group col-sm-6 words">
+                        <label for="amount-in-words">Amount in Words:</label>
+                        <p id="amount-in-words">Zero</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transporter Information -->
+            <div class="section">
+                <h4>Transporter Details</h4>
+                <div class="row">
+                    <div class="form-group col-sm-4">
+                        <label for="transporter-name">Transporter Name:</label>
+                        <input type="text" id="transporter-name" placeholder="Enter transporter name" required>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label for="vehicle-number">Vehicle Number:</label>
+                        <input type="text" id="vehicle-number" placeholder="Enter vehicle number" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="actions">
+                <button type="button" id="generate-non-gst-bill" class="primary-btn">Generate Bill</button>
+                <button type="reset" id="reset-form" class="secondary-btn">Reset Bill</button>
+            </div>
+        </form>
+    </div>
+
+
+    <script src="./js/non-gst-bill.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+        integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"
+        integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T"
+        crossorigin="anonymous"></script>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+        integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"
+        integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T"
+        crossorigin="anonymous"></script>
+
+    <script>
+        var AndraPradesh = ["Anantapur", "Chittoor", "East Godavari", "Guntur", "Kadapa", "Krishna", "Kurnool", "Prakasam", "Nellore", "Srikakulam", "Visakhapatnam", "Vizianagaram", "West Godavari"];
+        var ArunachalPradesh = ["Anjaw", "Changlang", "Dibang Valley", "East Kameng", "East Siang", "Kra Daadi", "Kurung Kumey", "Lohit", "Longding", "Lower Dibang Valley", "Lower Subansiri", "Namsai", "Papum Pare", "Siang", "Tawang", "Tirap", "Upper Siang", "Upper Subansiri", "West Kameng", "West Siang", "Itanagar"];
+        var Assam = ["Baksa", "Barpeta", "Biswanath", "Bongaigaon", "Cachar", "Charaideo", "Chirang", "Darrang", "Dhemaji", "Dhubri", "Dibrugarh", "Goalpara", "Golaghat", "Hailakandi", "Hojai", "Jorhat", "Kamrup Metropolitan", "Kamrup (Rural)", "Karbi Anglong", "Karimganj", "Kokrajhar", "Lakhimpur", "Majuli", "Morigaon", "Nagaon", "Nalbari", "Dima Hasao", "Sivasagar", "Sonitpur", "South Salmara Mankachar", "Tinsukia", "Udalguri", "West Karbi Anglong"];
+        var Bihar = ["Araria", "Arwal", "Aurangabad", "Banka", "Begusarai", "Bhagalpur", "Bhojpur", "Buxar", "Darbhanga", "East Champaran", "Gaya", "Gopalganj", "Jamui", "Jehanabad", "Kaimur", "Katihar", "Khagaria", "Kishanganj", "Lakhisarai", "Madhepura", "Madhubani", "Munger", "Muzaffarpur", "Nalanda", "Nawada", "Patna", "Purnia", "Rohtas", "Saharsa", "Samastipur", "Saran", "Sheikhpura", "Sheohar", "Sitamarhi", "Siwan", "Supaul", "Vaishali", "West Champaran"];
+        var Chhattisgarh = ["Balod", "Baloda Bazar", "Balrampur", "Bastar", "Bemetara", "Bijapur", "Bilaspur", "Dantewada", "Dhamtari", "Durg", "Gariaband", "Janjgir Champa", "Jashpur", "Kabirdham", "Kanker", "Kondagaon", "Korba", "Koriya", "Mahasamund", "Mungeli", "Narayanpur", "Raigarh", "Raipur", "Rajnandgaon", "Sukma", "Surajpur", "Surguja"];
+        var Goa = ["North Goa", "South Goa"];
+        var Gujarat = ["Ahmedabad", "Amreli", "Anand", "Aravalli", "Banaskantha", "Bharuch", "Bhavnagar", "Botad", "Chhota Udaipur", "Dahod", "Dang", "Devbhoomi Dwarka", "Gandhinagar", "Gir Somnath", "Jamnagar", "Junagadh", "Kheda", "Kutch", "Mahisagar", "Mehsana", "Morbi", "Narmada", "Navsari", "Panchmahal", "Patan", "Porbandar", "Rajkot", "Sabarkantha", "Surat", "Surendranagar", "Tapi", "Vadodara", "Valsad"];
+        var Haryana = ["Ambala", "Bhiwani", "Charkhi Dadri", "Faridabad", "Fatehabad", "Gurugram", "Hisar", "Jhajjar", "Jind", "Kaithal", "Karnal", "Kurukshetra", "Mahendragarh", "Mewat", "Palwal", "Panchkula", "Panipat", "Rewari", "Rohtak", "Sirsa", "Sonipat", "Yamunanagar"];
+        var HimachalPradesh = ["Bilaspur", "Chamba", "Hamirpur", "Kangra", "Kinnaur", "Kullu", "Lahaul Spiti", "Mandi", "Shimla", "Sirmaur", "Solan", "Una"];
+        var JammuKashmir = ["Anantnag", "Bandipora", "Baramulla", "Budgam", "Doda", "Ganderbal", "Jammu", "Kargil", "Kathua", "Kishtwar", "Kulgam", "Kupwara", "Leh", "Poonch", "Pulwama", "Rajouri", "Ramban", "Reasi", "Samba", "Shopian", "Srinagar", "Udhampur"];
+        var Jharkhand = ["Bokaro", "Chatra", "Deoghar", "Dhanbad", "Dumka", "East Singhbhum", "Garhwa", "Giridih", "Godda", "Gumla", "Hazaribagh", "Jamtara", "Khunti", "Koderma", "Latehar", "Lohardaga", "Pakur", "Palamu", "Ramgarh", "Ranchi", "Sahebganj", "Seraikela Kharsawan", "Simdega", "West Singhbhum"];
+        var Karnataka = ["Bagalkot", "Bangalore Rural", "Bangalore Urban", "Belgaum", "Bellary", "Bidar", "Vijayapura", "Chamarajanagar", "Chikkaballapur", "Chikkamagaluru", "Chitradurga", "Dakshina Kannada", "Davanagere", "Dharwad", "Gadag", "Gulbarga", "Hassan", "Haveri", "Kodagu", "Kolar", "Koppal", "Mandya", "Mysore", "Raichur", "Ramanagara", "Shimoga", "Tumkur", "Udupi", "Uttara Kannada", "Yadgir"];
+        var Kerala = ["Alappuzha", "Ernakulam", "Idukki", "Kannur", "Kasaragod", "Kollam", "Kottayam", "Kozhikode", "Malappuram", "Palakkad", "Pathanamthitta", "Thiruvananthapuram", "Thrissur", "Wayanad"];
+        var MadhyaPradesh = ["Agar Malwa", "Alirajpur", "Anuppur", "Ashoknagar", "Balaghat", "Barwani", "Betul", "Bhind", "Bhopal", "Burhanpur", "Chhatarpur", "Chhindwara", "Damoh", "Datia", "Dewas", "Dhar", "Dindori", "Guna", "Gwalior", "Harda", "Hoshangabad", "Indore", "Jabalpur", "Jhabua", "Katni", "Khandwa", "Khargone", "Mandla", "Mandsaur", "Morena", "Narsinghpur", "Neemuch", "Panna", "Raisen", "Rajgarh", "Ratlam", "Rewa", "Sagar", "Satna",
+            "Sehore", "Seoni", "Shahdol", "Shajapur", "Sheopur", "Shivpuri", "Sidhi", "Singrauli", "Tikamgarh", "Ujjain", "Umaria", "Vidisha"];
+        var Maharashtra = ["Ahmednagar", "Akola", "Amravati", "Aurangabad", "Beed", "Bhandara", "Buldhana", "Chandrapur", "Dhule", "Gadchiroli", "Gondia", "Hingoli", "Jalgaon", "Jalna", "Kolhapur", "Latur", "Mumbai City", "Mumbai Suburban", "Nagpur", "Nanded", "Nandurbar", "Nashik", "Osmanabad", "Palghar", "Parbhani", "Pune", "Raigad", "Ratnagiri", "Sangli", "Satara", "Sindhudurg", "Solapur", "Thane", "Wardha", "Washim", "Yavatmal"];
+        var Manipur = ["Bishnupur", "Chandel", "Churachandpur", "Imphal East", "Imphal West", "Jiribam", "Kakching", "Kamjong", "Kangpokpi", "Noney", "Pherzawl", "Senapati", "Tamenglong", "Tengnoupal", "Thoubal", "Ukhrul"];
+        var Meghalaya = ["East Garo Hills", "East Jaintia Hills", "East Khasi Hills", "North Garo Hills", "Ri Bhoi", "South Garo Hills", "South West Garo Hills", "South West Khasi Hills", "West Garo Hills", "West Jaintia Hills", "West Khasi Hills"];
+        var Mizoram = ["Aizawl", "Champhai", "Kolasib", "Lawngtlai", "Lunglei", "Mamit", "Saiha", "Serchhip", "Aizawl", "Champhai", "Kolasib", "Lawngtlai", "Lunglei", "Mamit", "Saiha", "Serchhip"];
+        var Nagaland = ["Dimapur", "Kiphire", "Kohima", "Longleng", "Mokokchung", "Mon", "Peren", "Phek", "Tuensang", "Wokha", "Zunheboto"];
+        var Odisha = ["Angul", "Balangir", "Balasore", "Bargarh", "Bhadrak", "Boudh", "Cuttack", "Debagarh", "Dhenkanal", "Gajapati", "Ganjam", "Jagatsinghpur", "Jajpur", "Jharsuguda", "Kalahandi", "Kandhamal", "Kendrapara", "Kendujhar", "Khordha", "Koraput", "Malkangiri", "Mayurbhanj", "Nabarangpur", "Nayagarh", "Nuapada", "Puri", "Rayagada", "Sambalpur", "Subarnapur", "Sundergarh"];
+        var Punjab = ["Amritsar", "Barnala", "Bathinda", "Faridkot", "Fatehgarh Sahib", "Fazilka", "Firozpur", "Gurdaspur", "Hoshiarpur", "Jalandhar", "Kapurthala", "Ludhiana", "Mansa", "Moga", "Mohali", "Muktsar", "Pathankot", "Patiala", "Rupnagar", "Sangrur", "Shaheed Bhagat Singh Nagar", "Tarn Taran"];
+        var Rajasthan = ["Ajmer", "Alwar", "Banswara", "Baran", "Barmer", "Bharatpur", "Bhilwara", "Bikaner", "Bundi", "Chittorgarh", "Churu", "Dausa", "Dholpur", "Dungarpur", "Ganganagar", "Hanumangarh", "Jaipur", "Jaisalmer", "Jalore", "Jhalawar", "Jhunjhunu", "Jodhpur", "Karauli", "Kota", "Nagaur", "Pali", "Pratapgarh", "Rajsamand", "Sawai Madhopur", "Sikar", "Sirohi", "Tonk", "Udaipur"];
+        var Sikkim = ["East Sikkim", "North Sikkim", "South Sikkim", "West Sikkim"];
+        var TamilNadu = ["Ariyalur", "Chennai", "Coimbatore", "Cuddalore", "Dharmapuri", "Dindigul", "Erode", "Kanchipuram", "Kanyakumari", "Karur", "Krishnagiri", "Madurai", "Nagapattinam", "Namakkal", "Nilgiris", "Perambalur", "Pudukkottai", "Ramanathapuram", "Salem", "Sivaganga", "Thanjavur", "Theni", "Thoothukudi", "Tiruchirappalli", "Tirunelveli", "Tiruppur", "Tiruvallur", "Tiruvannamalai", "Tiruvarur", "Vellore", "Viluppuram", "Virudhunagar"];
+        var Telangana = ["Adilabad", "Bhadradri Kothagudem", "Hyderabad", "Jagtial", "Jangaon", "Jayashankar", "Jogulamba", "Kamareddy", "Karimnagar", "Khammam", "Komaram Bheem", "Mahabubabad", "Mahbubnagar", "Mancherial", "Medak", "Medchal", "Nagarkurnool", "Nalgonda", "Nirmal", "Nizamabad", "Peddapalli", "Rajanna Sircilla", "Ranga Reddy", "Sangareddy", "Siddipet", "Suryapet", "Vikarabad", "Wanaparthy", "Warangal Rural", "Warangal Urban", "Yadadri Bhuvanagiri"];
+        var Tripura = ["Dhalai", "Gomati", "Khowai", "North Tripura", "Sepahijala", "South Tripura", "Unakoti", "West Tripura"];
+        var UttarPradesh = ["Agra", "Aligarh", "Allahabad", "Ambedkar Nagar", "Amethi", "Amroha", "Auraiya", "Azamgarh", "Baghpat", "Bahraich", "Ballia", "Balrampur", "Banda", "Barabanki", "Bareilly", "Basti", "Bhadohi", "Bijnor", "Budaun", "Bulandshahr", "Chandauli", "Chitrakoot", "Deoria", "Etah", "Etawah", "Faizabad", "Farrukhabad", "Fatehpur", "Firozabad", "Gautam Buddha Nagar", "Ghaziabad", "Ghazipur", "Gonda", "Gorakhpur", "Hamirpur", "Hapur", "Hardoi", "Hathras", "Jalaun", "Jaunpur", "Jhansi", "Kannauj", "Kanpur Dehat", "Kanpur Nagar", "Kasganj", "Kaushambi", "Kheri", "Kushinagar", "Lalitpur", "Lucknow", "Maharajganj", "Mahoba", "Mainpuri", "Mathura", "Mau", "Meerut", "Mirzapur", "Moradabad", "Muzaffarnagar", "Pilibhit", "Pratapgarh", "Raebareli", "Rampur", "Saharanpur", "Sambhal", "Sant Kabir Nagar", "Shahjahanpur", "Shamli", "Shravasti", "Siddharthnagar", "Sitapur", "Sonbhadra", "Sultanpur", "Unnao", "Varanasi"];
+        var Uttarakhand = ["Almora", "Bageshwar", "Chamoli", "Champawat", "Dehradun", "Haridwar", "Nainital", "Pauri", "Pithoragarh", "Rudraprayag", "Tehri", "Udham Singh Nagar", "Uttarkashi"];
+        var WestBengal = ["Alipurduar", "Bankura", "Birbhum", "Cooch Behar", "Dakshin Dinajpur", "Darjeeling", "Hooghly", "Howrah", "Jalpaiguri", "Jhargram", "Kalimpong", "Kolkata", "Malda", "Murshidabad", "Nadia", "North 24 Parganas", "Paschim Bardhaman", "Paschim Medinipur", "Purba Bardhaman", "Purba Medinipur", "Purulia", "South 24 Parganas", "Uttar Dinajpur"];
+        var AndamanNicobar = ["Nicobar", "North Middle Andaman", "South Andaman"];
+        var Chandigarh = ["Chandigarh"];
+        var DadraHaveli = ["Dadra Nagar Haveli"];
+        var DamanDiu = ["Daman", "Diu"];
+        var Delhi = ["Central Delhi", "East Delhi", "New Delhi", "North Delhi", "North East Delhi", "North West Delhi", "Shahdara", "South Delhi", "South East Delhi", "South West Delhi", "West Delhi"];
+        var Lakshadweep = ["Lakshadweep"];
+        var Puducherry = ["Karaikal", "Mahe", "Puducherry", "Yanam"];
+
+
+        $("#inputState").change(function () {
+            var StateSelected = $(this).val();
+            var optionsList;
+            var htmlString = "";
+
+            switch (StateSelected) {
+                case "Andra Pradesh":
+                    optionsList = AndraPradesh;
+                    break;
+                case "Arunachal Pradesh":
+                    optionsList = ArunachalPradesh;
+                    break;
+                case "Assam":
+                    optionsList = Assam;
+                    break;
+                case "Bihar":
+                    optionsList = Bihar;
+                    break;
+                case "Chhattisgarh":
+                    optionsList = Chhattisgarh;
+                    break;
+                case "Goa":
+                    optionsList = Goa;
+                    break;
+                case "Gujarat":
+                    optionsList = Gujarat;
+                    break;
+                case "Haryana":
+                    optionsList = Haryana;
+                    break;
+                case "Himachal Pradesh":
+                    optionsList = HimachalPradesh;
+                    break;
+                case "Jammu and Kashmir":
+                    optionsList = JammuKashmir;
+                    break;
+                case "Jharkhand":
+                    optionsList = Jharkhand;
+                    break;
+                case "Karnataka":
+                    optionsList = Karnataka;
+                    break;
+                case "Kerala":
+                    optionsList = Kerala;
+                    break;
+                case "Madya Pradesh":
+                    optionsList = MadhyaPradesh;
+                    break;
+                case "Maharashtra":
+                    optionsList = Maharashtra;
+                    break;
+                case "Manipur":
+                    optionsList = Manipur;
+                    break;
+                case "Meghalaya":
+                    optionsList = Meghalaya;
+                    break;
+                case "Mizoram":
+                    optionsList = Mizoram;
+                    break;
+                case "Nagaland":
+                    optionsList = Nagaland;
+                    break;
+                case "Orissa":
+                    optionsList = Orissa;
+                    break;
+                case "Punjab":
+                    optionsList = Punjab;
+                    break;
+                case "Rajasthan":
+                    optionsList = Rajasthan;
+                    break;
+                case "Sikkim":
+                    optionsList = Sikkim;
+                    break;
+                case "Tamil Nadu":
+                    optionsList = TamilNadu;
+                    break;
+                case "Telangana":
+                    optionsList = Telangana;
+                    break;
+                case "Tripura":
+                    optionsList = Tripura;
+                    break;
+                case "Uttaranchal":
+                    optionsList = Uttaranchal;
+                    break;
+                case "Uttar Pradesh":
+                    optionsList = UttarPradesh;
+                    break;
+                case "West Bengal":
+                    optionsList = WestBengal;
+                    break;
+                case "Andaman and Nicobar Islands":
+                    optionsList = AndamanNicobar;
+                    break;
+                case "Chandigarh":
+                    optionsList = Chandigarh;
+                    break;
+                case "Dadar and Nagar Haveli":
+                    optionsList = DadraHaveli;
+                    break;
+                case "Daman and Diu":
+                    optionsList = DamanDiu;
+                    break;
+                case "Delhi":
+                    optionsList = Delhi;
+                    break;
+                case "Lakshadeep":
+                    optionsList = Lakshadeep;
+                    break;
+                case "Pondicherry":
+                    optionsList = Pondicherry;
+                    break;
+            }
+
+
+            for (var i = 0; i < optionsList.length; i++) {
+                htmlString = htmlString + "<option value='" + optionsList[i] + "'>" + optionsList[i] + "</option>";
+            }
+            $("#inputDistrict").html(htmlString);
+
+        });    
+    </script>
+
+    <script>
+        document.getElementById('generate-non-gst-bill').addEventListener('click', async () => {
+            // Gather data from the form
+            const invoiceNo = document.getElementById('invoice-no').value;
+            const challanNo = document.getElementById('challan-no').value;
+            const date = document.getElementById('date').value;
+
+            const customer = {
+                customerId: document.getElementById('customerId').value,
+                name: document.getElementById('customer-name').value,
+                stateCode: document.getElementById('state-code').value,
+                state: document.getElementById('inputState').value,
+                district: document.getElementById('inputDistrict').value,
+                city: document.getElementById('city').value,
+                street: document.getElementById('street').value,
+                pincode: document.getElementById('pincode').value,
+                phone: document.getElementById('phone').value,
+            };
+
+            // Check if any required field is missing
+            if (!date || !customer.name || !customer.stateCode || !customer.state || !customer.district || !customer.city || !customer.street || !customer.pincode || !customer.phone) {
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Please fill in all required fields.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                return;  // Prevent the form submission
+            }
+
+            // Collect product data
+            const products = [];
+            document.querySelectorAll('.product-row').forEach((row, index) => {
+                const product = {
+                    itemCode: row.querySelector('.item-code').value,
+                    productName: row.querySelector('.product-name').value,
+                    hsnCode: row.querySelector('.product-hsn').value,
+                    quantity: parseFloat(row.querySelector('.product-quantity').value),
+                    units: row.querySelector('.product-units').value,
+                    rate: parseFloat(row.querySelector('.product-rate').value),
+                    amount: parseFloat(row.querySelector('.product-amount').innerText),
+                };
+                // Only push the product if the amount is valid (non-null and non-zero)
+                if (product.amount > 0) {
+                    products.push(product);
+                }
+            });
+
+
+
+            // Retrieve amounts from the form
+            const totalAmount = parseFloat(document.getElementById('total-product-amount').innerText.replace('₹', '').trim());
+            const roundOffAmount = parseFloat(document.getElementById('round-off-amount').innerText.replace('₹', '').trim());
+            const grandTotal = parseFloat(document.getElementById('grand-total').innerText.replace('₹', '').trim());
+
+            const transporter = {
+                name: document.getElementById('transporter-name').value,
+                vehicleNumber: document.getElementById('vehicle-number').value,
+            };
+
+            const amountInWords = document.getElementById('amount-in-words').innerText;
+
+            // Get the userId from localStorage or session (you can adapt it based on your setup)
+            const userId = localStorage.getItem('userId');  // Replace with the actual way you're storing the userId
+
+            const billData = {
+                invoiceNo,
+                challanNo,
+                date,
+                customer,
+                products,
+                roundOffAmount,
+                totalAmount,
+                grandTotal,
+                transporter,
+                amountInWords,
+                userId  // Add the userId to the bill data
+            };
+
+            // Send the data to the server
+            try {
+                const response = await fetch('/generate-non-gst-bill', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(billData),
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    // Show success popup if the bill is saved successfully
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Non GST Bill generated successfully.',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        // Refresh the page after success
+                        location.reload();
+                    });
+                } else {
+                    // Show failure popup if something went wrong
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'There was an issue generating the Non GST bill. Please try again.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            } catch (error) {
+                // Handle network or other errors
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Something went wrong. Please try again later.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // Fetch the next invoice number and challan number from the server
+                const response = await fetch('/get-non-gst-next-numbers');
+                const data = await response.json();
+                console.log(data); // Log the response data
+
+                if (data.success) {
+                    console.log('Next Invoice No:', data.nextInvoiceNo);
+                    console.log('Next Challan No:', data.nextChallanNo);
+
+                    // Set the next invoice number and challan number in the respective input fields
+                    document.getElementById('invoice-no').value = data.nextInvoiceNo;
+                    document.getElementById('challan-no').value = data.nextChallanNo;
+                } else {
+                    console.error('Error fetching next numbers:', data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+
+    </script>
+
+    <script>
+        // Initialize Flatpickr with default date as current date
+        document.addEventListener('DOMContentLoaded', () => {
+            flatpickr('.flatpickr', {
+                defaultDate: new Date(), // Set the default date to today
+                dateFormat: 'd-m-Y', // Format: YYYY-MM-DD
+            });
+        });
+    </script>
+
+    <script>
+        let allCustomers = []; // To store all customers fetched on page load
+
+        // Fetch all customers on page load
+        async function fetchAllCustomers() {
+            try {
+                const response = await fetch('/customers');
+                const data = await response.json();
+
+                if (data.success) {
+                    allCustomers = data.customers;
+                    console.log("All customers fetched:", allCustomers);
+                } else {
+                    console.error("Error fetching customers:", data.message);
+                }
+            } catch (error) {
+                console.error("Error fetching customers:", error.message);
+            }
+        }
+
+        // Filter customers based on input value
+        function filterCustomers(inputElement) {
+            const query = inputElement.value.trim().toLowerCase(); // Normalize input
+            const suggestionsDropdown = document.getElementById('customer-suggestions');
+
+            if (!query) {
+                suggestionsDropdown.style.display = 'none'; // Hide if query is empty
+                return;
+            }
+
+            const filteredCustomers = allCustomers.filter(customer => {
+                // Check if customer.customerName exists and is a string before calling toLowerCase
+                if (customer.customerName && typeof customer.customerName === 'string') {
+                    return customer.customerName.toLowerCase().includes(query);
+                } else {
+                    console.warn('Skipping customer without a valid customerName:', customer);
+                    return false;
+                }
+            });
+
+            // Update suggestions dropdown
+            suggestionsDropdown.innerHTML = '';
+            if (filteredCustomers.length > 0) {
+                suggestionsDropdown.style.display = 'block';
+                filteredCustomers.forEach(customer => {
+                    const suggestionItem = document.createElement('div');
+                    suggestionItem.classList.add('suggestion-item');
+
+                    // Display both customerId and customerName
+                    suggestionItem.textContent = `ID: ${customer.customerId} - Name: ${customer.customerName}- Email: ${customer.email}`;
+
+                    suggestionItem.addEventListener('click', () => {
+                        // Use customer.customerId for the input field
+                        inputElement.value = customer.customerName;
+
+                        // Populate other fields with the selected customer's details
+                        document.getElementById('customerId').value = customer.customerId || '';
+                        document.getElementById('state-code').value = customer.stateCode || '';
+                        document.getElementById('inputState').value = customer.state || 'SelectState';
+
+                        // Populate the district dropdown based on customer data
+                        const districtDropdown = document.getElementById('inputDistrict');
+                        districtDropdown.innerHTML = '<option value="">-- select one -- </option>'; // Clear previous options
+
+                        // Directly use the customer's district without extra logic
+                        const selectedDistrict = customer.district || '';
+                        const option = document.createElement('option');
+                        option.value = selectedDistrict;
+                        option.textContent = selectedDistrict;
+
+                        if (selectedDistrict) {
+                            option.selected = true; // Pre-select if a district exists
+                        }
+
+                        districtDropdown.appendChild(option);
+
+                        document.getElementById('city').value = customer.city || '';
+                        document.getElementById('street').value = customer.street || '';
+                        document.getElementById('pincode').value = customer.pincode || '';
+                        document.getElementById('phone').value = customer.phone || '';
+
+                        suggestionsDropdown.style.display = 'none';
+                    });
+
+                    suggestionsDropdown.appendChild(suggestionItem);
+                });
+            } else {
+                suggestionsDropdown.style.display = 'none';
+            }
+        }
+
+
+
+        // Fetch customers on page load
+        document.addEventListener('DOMContentLoaded', fetchAllCustomers);
+
+        // Hide dropdown when clicking outside
+        document.addEventListener('click', (event) => {
+            const dropdown = document.getElementById('customer-suggestions');
+            const input = document.getElementById('customer-name');
+            if (!input.contains(event.target) && !dropdown.contains(event.target)) {
+                dropdown.style.display = 'none';
+            }
+        });
+    </script>
+
+    <script>
+        let allProducts = []; // Store all products
+
+        // Fetch products on page load
+        async function fetchAllProducts() {
+            try {
+                const response = await fetch('/get-products');
+                const data = await response.json();
+
+                if (data.success) {
+                    allProducts = data.products;
+                    console.log("All products fetched:", allProducts);
+                } else {
+                    console.error("Error fetching products:", data.message);
+                }
+            } catch (error) {
+                console.error("Error fetching products:", error.message);
+            }
+        }
+
+        // Fetch and display product suggestions based on input
+        function fetchProducts(inputElement) {
+            const query = inputElement.value.trim().toLowerCase(); // Normalize input
+            const suggestionsDropdown = inputElement.nextElementSibling; // Dropdown in the same cell
+
+            if (!query) {
+                suggestionsDropdown.style.display = 'none'; // Hide if query is empty
+                return;
+            }
+
+            // Filter products based on the query
+            const filteredProducts = allProducts.filter(product =>
+                product.productName.toLowerCase().includes(query) || product.itemCode.toLowerCase().includes(query)
+            );
+
+            suggestionsDropdown.innerHTML = ''; // Clear previous suggestions
+            if (filteredProducts.length > 0) {
+                suggestionsDropdown.style.display = 'block'; // Show suggestions
+                filteredProducts.forEach(product => {
+                    const suggestionItem = document.createElement('li');
+                    suggestionItem.classList.add('suggestion-item');
+                    suggestionItem.textContent = `ID: ${product.productId} - Name: ${product.productName}- Item Code: ${product.itemCode}`;
+
+                    suggestionItem.addEventListener('click', () => {
+                        inputElement.value = product.itemCode; // Set item code
+                        const row = inputElement.closest('tr');
+                        row.querySelector('.product-name').value = product.productName; // Set product name
+                        row.querySelector('.product-hsn').value = product.hsnCode; // Set HSN Code
+                        row.querySelector('.product-rate').value = product.rate; // Set rate
+                        suggestionsDropdown.style.display = 'none'; // Hide dropdown
+                        updateBill(); // Update the bill
+                    });
+
+                    suggestionsDropdown.appendChild(suggestionItem);
+                });
+            } else {
+                suggestionsDropdown.style.display = 'none'; // Hide if no matches
+            }
+        }
+
+        // Fetch all products on page load
+        document.addEventListener('DOMContentLoaded', fetchAllProducts);
+
+        // Hide dropdown when clicking outside
+        document.addEventListener('click', (event) => {
+            const dropdowns = document.querySelectorAll('.product-dropdown');
+            dropdowns.forEach(dropdown => {
+                if (!dropdown.contains(event.target) && !dropdown.previousElementSibling.contains(event.target)) {
+                    dropdown.style.display = 'none';
+                }
+            });
+        });
+    </script>
+    <script>
+        function updateBill() {
+            let totalQuantity = 0;
+            let totalAmount = 0;
+
+            document.querySelectorAll('.product-row').forEach(row => {
+                const quantity = parseFloat(row.querySelector('.product-quantity').value) || 0;
+                const rate = parseFloat(row.querySelector('.product-rate').value) || 0;
+                const amount = quantity * rate;
+
+                row.querySelector('.product-amount').innerText = amount.toFixed(2);
+                totalQuantity += quantity;
+                totalAmount += amount;
+            });
+
+            const roundOffAmount = Math.round(totalAmount) - (totalAmount);
+            const grandTotal = totalAmount + roundOffAmount;
+
+            // Update totals in the form
+            document.getElementById('total-quantity').innerText = totalQuantity.toFixed(2);
+            document.getElementById('total-product-amount').innerText = `₹ ${totalAmount.toFixed(2)}`;
+
+            document.getElementById('round-off-amount').innerText = `₹ ${roundOffAmount.toFixed(2)}`;
+            document.getElementById('grand-total').innerText = `₹ ${grandTotal.toFixed(2)}`;
+
+            // Update Amount in Words (you might want to create a function for this)
+            // Update Amount in Words
+            const amountInWords = convertNumberToWords(grandTotal);
+            document.getElementById('amount-in-words').innerText = amountInWords;
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,220 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Transporter</title>
+    <link rel="stylesheet" href="/css/navbar.css">
+    <link rel="stylesheet" href="/css/register-transporter.css">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.5.4/dist/sweetalert2.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Navbar -->
+    {{> navbar}}
+
+    <!-- Edit Transporter Form -->
+    <div class="container">
+        <a href="/transporter-list" class="transporter-list-btn">Transporter List</a>
+
+        <h4>Edit Transporter</h4>
+        <div class="user-info">
+            <p>
+                <strong>Hello, {{userName}}!</strong> You are logged in. Edit the Transporter details below.
+            </p>
+        </div>
+
+        <div class="section">
+            <form id="editTransporterForm" action="/edit-transporter/{{transporterId}}" method="POST">
+
+                <input type="hidden" id="transporter-Id" name="transporterId" value="{{transporterId}}">
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="transporterId">Transporter ID:</label>
+                        <input type="text" id="transporterId" name="transporterId" value="{{transporterId}}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="transporterName">Transporter Name:</label>
+                        <input type="text" id="transporterName" name="transporterName" value="{{transporterName}}"
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" value="{{email}}" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="phone">Phone:</label>
+                        <input type="tel" id="phone" name="phone" value="{{phone}}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="vehicleNumber">Vehicle Number:</label>
+                        <input type="text" id="vehicleNumber" name="vehicleNumber" value="{{vehicleNumber}}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="stateCode">State Code:</label>
+                        <input type="text" id="stateCode" name="stateCode" value="{{stateCode}}" required>
+                    </div>
+                </div>
+
+                <!-- Address Section -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="state">State:</label>
+                        <input type="text" id="state" name="state" value="{{state}}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="district">District:</label>
+                        <input type="text" id="district" name="district" value="{{district}}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="city">City:</label>
+                        <input type="text" id="city" name="city" value="{{city}}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="pincode">Pincode:</label>
+                        <input type="text" id="pincode" name="pincode" value="{{pincode}}" required>
+                    </div>
+                </div>
+
+                <button type="submit">Update</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.5.4/dist/sweetalert2.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.5.4/dist/sweetalert2.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.5.4/dist/sweetalert2.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const transporterId = urlParams.get('transporterId'); // Get transporterId from the URL query string
+
+            if (!transporterId) {
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Transporter ID is missing!',
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                }).then(() => {
+                    window.location.href = '/transporter-list'; // Redirect to transporter list if no ID
+                });
+                return;
+            }
+
+            try {
+                const response = await fetch(`/get-transporter/${transporterId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const transporter = data.transporter;
+
+                    // Populate form fields with the fetched transporter data
+                    document.getElementById('transporter-Id').value = transporter._id;
+                    document.getElementById('transporterId').value = transporter.transporterId;
+                    document.getElementById('transporterName').value = transporter.transporterName;
+                    document.getElementById('email').value = transporter.email;
+                    document.getElementById('phone').value = transporter.phone;
+                    document.getElementById('vehicleNumber').value = transporter.vehicleNumber;
+                    document.getElementById('stateCode').value = transporter.stateCode;
+                    document.getElementById('state').value = transporter.state;
+                    document.getElementById('district').value = transporter.district;
+                    document.getElementById('city').value = transporter.city;
+                    document.getElementById('pincode').value = transporter.pincode;
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Transporter not found.',
+                        icon: 'error',
+                        confirmButtonText: 'OK',
+                    }).then(() => {
+                        window.location.href = '/transporter-list'; // Redirect if transporter not found
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching transporter details:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An error occurred while fetching transporter details.',
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                });
+            }
+        });
+    </script>
+    <script>
+        // Handle form submission
+        document.getElementById('editTransporterForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const transporterId = document.getElementById('transporter-Id').value;
+            const transporterIdd = document.getElementById('transporterId').value;
+            const transporterName = document.getElementById('transporterName').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const vehicleNumber = document.getElementById('vehicleNumber').value;
+            const stateCode = document.getElementById('stateCode').value;
+            const state = document.getElementById('state').value;
+            const district = document.getElementById('district').value;
+            const city = document.getElementById('city').value;
+            const pincode = document.getElementById('pincode').value;
+
+            const transporterData = {
+                transporterName,
+                email,
+                phone,
+                vehicleNumber,
+                stateCode,
+                state,
+                district,
+                city,
+                pincode,
+            };
+
+            try {
+                const response = await fetch(`/edit-transporter/${transporterId}`, {
+                    method: 'PUT', // Use PUT for updates
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(transporterData),
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: `Transporter updated successfully. Transporter ID: ${transporterIdd}`,
+                        icon: 'success',
+                        timer: 1500,
+                        showConfirmButton: false,
+                    }).then(() => {
+                        window.location.href = '/transporter-list'; // Redirect after success
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: data.message || 'Failed to update the transporter.',
+                        icon: 'error',
+                        confirmButtonText: 'OK',
+                    });
+                }
+            } catch (error) {
+                console.error('Error updating transporter:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Something went wrong. Please try again later.',
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

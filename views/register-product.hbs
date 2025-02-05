@@ -1,0 +1,168 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Registration</title>
+  <link rel="stylesheet" href="/css/navbar.css">
+  <link rel="stylesheet" href="/css/register-product.css">
+  <!-- Add SweetAlert CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.5.4/dist/sweetalert2.min.css" rel="stylesheet">
+
+  <!-- Importing Poppins font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url("images/background.jpg") no-repeat center center fixed;
+      background-size: cover;
+      opacity: 0.1;
+      /* Adjust this value to set the opacity (0.1 to 1) */
+      z-index: -1;
+      /* Ensure it stays behind the content */
+    }
+  </style>
+
+</head>
+
+<body>
+  {{> navbar}}
+  <div class="container">
+
+    <button class="product-list-btn" onclick="window.location.href='/product-list'">Product List</button>
+    <!-- Button to Product List -->
+
+    <h4>Product Registration</h4>
+
+    <!-- User Info Section -->
+    <div class="user-info">
+      <p style="color: rgb(74, 74, 74); margin-bottom:10px; text-align:center"><strong>Hello, {{userName}}!</strong> You are logged in. Your products will be associated with your account.
+      </p>
+    </div>
+
+    <div class="section">
+      <form id="product-form" class="form-row">
+        <div class="form-group">
+          <label for="product-id">Product ID</label>
+          <input type="text" id="product-id" name="product-id" required readonly>
+        </div>
+
+        <div class="form-group">
+          <label for="item-code">Item Code</label>
+          <input type="text" id="item-code" name="item-code" placeholder="Enter Product Item Code" required>
+        </div>
+
+        <div class="form-group">
+          <label for="product-name">Product Name</label>
+          <input type="text" id="product-name" name="product-name" placeholder="Enter Product Name" required>
+        </div>
+
+        <div class="form-group">
+          <label for="hsn-code">HSN Code</label>
+          <input type="text" id="hsn-code" name="hsn-code" placeholder="Enter Product HSN Code" required>
+        </div>
+
+        <div class="form-group">
+          <label for="rate">Rate</label>
+          <input type="number" id="rate" name="rate" placeholder="Enter Product Rate" required>
+        </div>
+
+        <button type="submit">Register Product</button>
+      </form>
+    </div>
+
+    <!-- Display Product ID after successful registration -->
+    <div id="product-id-section" class="section">
+      <h3>Product Registered Successfully!</h3>
+      <p><strong>Product ID:</strong> <span id="product-id-display"></span></p>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.5.4/dist/sweetalert2.all.min.js"></script>
+  <script>
+    document.getElementById('product-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      // Get data from the form
+      const productId = document.getElementById('product-id').value;
+      const itemCode = document.getElementById('item-code').value;
+      const productName = document.getElementById('product-name').value;
+      const hsnCode = document.getElementById('hsn-code').value;
+      const rate = parseFloat(document.getElementById('rate').value);
+
+      // Create the product object
+      const productData = {
+        productId,
+        itemCode,
+        productName,
+        hsnCode,
+        rate
+      };
+
+      try {
+        const response = await fetch('/register-product', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(productData),
+        });
+
+        const data = await response.json();
+        console.log(data); // Log the response data
+        if (data.success) {
+          // Show success message
+          Swal.fire({
+            title: 'Success!',
+            text: `Product registered successfully. Product ID: ${data.product.productId}`,
+            icon: 'success',
+            confirmButtonText: 'OK',
+          }).then(() => {
+            // Reload the page to get the next Product ID
+            window.location.reload();
+          });
+        } else {
+          Swal.fire({
+            title: 'Error!',
+            text: 'There was an issue registering the product. Please try again.',
+            icon: 'error',
+            confirmButtonText: 'OK',
+          });
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+          title: 'Error!',
+          text: 'Something went wrong. Please try again later.',
+          icon: 'error',
+          confirmButtonText: 'OK',
+        });
+      }
+    });
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const response = await fetch('/get-next-product-id');
+        const data = await response.json();
+
+        if (data.success) {
+          document.getElementById('product-id').value = data.nextProductId;
+        } else {
+          console.error('Error fetching next product ID:', data.message);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    });
+
+  </script>
+  
+</body>
+
+</html>

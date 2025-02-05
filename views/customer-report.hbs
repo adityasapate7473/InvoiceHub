@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Report</title>
+    <link rel="stylesheet" href="/css/navbar.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.0/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.2.1/Chart.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #F5EDED;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 90%;
+            margin: auto;
+        }
+
+        .customer-report-print {
+            padding: 20px;
+        }
+
+        .custom {
+            padding: 30px;
+            margin: 20px auto;
+            border: 1px solid #333;
+            border-radius: 8px;
+        }
+
+        h1,
+        h2 {
+            color: #6482AD;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            font-size: 1.7rem;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            margin-top: 20px;
+        }
+
+
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: #ffffff;
+        }
+
+        th,
+        td {
+            padding: 15px 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            font-size: 16px;
+        }
+
+        th:not(:last-child),
+        td:not(:last-child) {
+            border-right: 2px solid #ddd;
+        }
+
+        th {
+            background-color: #6482AD;
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #F9F9F9;
+        }
+
+        tr:hover {
+            background-color: #F1F4F8;
+        }
+
+        td {
+            color: #555;
+            word-wrap: break-word;
+        }
+
+        /* Summary section container */
+        .summary-section-container {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+        }
+
+        .g {
+            width: 100%;
+        }
+
+        .user {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            padding: 15px;
+            gap: 25px;
+        }
+
+        /* Address section specific styling */
+        .address-section {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            gap: 7px;
+            padding-bottom: 15px;
+        }
+
+        .bold {
+            font-weight: 500;
+            color: #6482AD;
+        }
+
+        /* Collapsible Panel container */
+        .panel {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            background-color: #6482AD;
+            color: white;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .panel-header:hover {
+            background-color: #7FA1C3;
+        }
+
+        .panel-header i {
+            margin-right: 10px;
+        }
+
+        .panel-content {
+            display: block;
+            /* Hide content by default */
+            padding: 15px;
+        }
+
+        .panel-content p {
+            margin: 10px 0;
+            font-size: 1rem;
+            color: #333;
+        }
+
+
+        /* Icon styling for better visibility */
+        .icona {
+            font-size: 1.5rem;
+            color: white;
+            padding: 8px;
+            border-radius: 50%;
+            background-color: #7FA1C3;
+            margin-right: 15px;
+        }
+
+        /* Button for downloading report */
+        .download-btn button {
+            background-color: #6482AD;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .download-btn button:hover {
+            background-color: #7FA1C3;
+        }
+
+
+        /* Change chart color */
+        .chart-container {
+            margin-top: 40px;
+            padding: 30px;
+            width: 100%;
+            height: 60vh;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        canvas {
+            margin: 0 auto;
+            height: 50vh;
+        }
+
+        .order-table tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* Reduce size of all SweetAlert2 icons except success */
+        .swal2-icon.swal2-warning,
+        .swal2-icon.swal2-info,
+        .swal2-icon.swal2-question {
+            width: 50px !important;
+            /* Adjust size as needed */
+            height: 50px !important;
+            /* Adjust size as needed */
+            font-size: 28px !important;
+            /* Adjust icon font size */
+        }
+
+        /* Keep success icon default size */
+        .swal2-icon.swal2-success {
+            width: 80px;
+            /* Default size */
+            height: 80px;
+            /* Default size */
+        }
+    </style>
+</head>
+
+<body>
+    {{> navbar}}
+    <div class="container">
+        <div class="download-btn" id="download-button">
+            <button onclick="printOrDownloadReport()">Download Customer Report</button>
+        </div>
+
+        <div class="customer-report-print" id="customer-report-print">
+            <div class="custom">
+                <h1>Customer Report: <span id="customer-name"></span></h1>
+
+                <!-- Customer Info Panel -->
+
+                <div class="panel" id="customer-info-panel">
+                    <div class="panel-header">
+                        <i class="icona fa fa-user"></i> Customer Information
+                    </div>
+                    <div class="user">
+                        <p><span>Customer ID:</span> <span class="bold" id="customer-id">N/A</span></p>
+                        <p><span>Name:</span> <span class="bold" id="customer-name-1">N/A</span></p>
+                        <p><span>Email:</span> <span class="bold" id="customer-email">N/A</span></p>
+                        <p><span>Phone:</span> <span class="bold" id="customer-phone">N/A</span></p>
+                    </div>
+
+                    <!-- Address section in the next row -->
+                    <div class="address-section">
+                        <p><span>Address:</span> <span class="bold" id="customer-address">N/A</span></p>
+                        <p><span>,</span> <span class="bold" id="customer-city">N/A</span></p>
+                        <p><span>,</span> <span class="bold" id="customer-district">N/A</span></p>
+                        <p><span>,</span> <span class="bold" id="customer-state">N/A</span></p>
+                        <p><span>-</span> <span class="bold" id="customer-pincode">N/A</span>.</p>
+                    </div>
+
+
+                </div>
+                <div class="summary-section-container">
+                    <!-- GST Sales Summary Panel -->
+                    <div class="panel g" id="gst-panel">
+                        <div class="panel-header" onclick="togglePanel('gst-panel')">
+                            <i class="icona fa fa-chart-line"></i> GST Sales Summary
+                        </div>
+                        <div class="panel-content">
+                            <p><span>Total Spending:</span> <span class="bold" id="gst-total-spending">0</span></p>
+                            <p><span>Total GST Paid:</span> <span class="bold" id="gst-total-gst">0</span></p>
+                            <p><span>Last Order Date:</span> <span class="bold" id="gst-last-order-date">N/A</span></p>
+                        </div>
+                    </div>
+
+                    <!-- Non-GST Sales Summary Panel -->
+                    <div class="panel g" id="non-gst-panel">
+                        <div class="panel-header" onclick="togglePanel('non-gst-panel')">
+                            <i class="icona fa fa-cogs"></i> Non-GST Sales Summary
+                        </div>
+                        <div class="panel-content">
+                            <p><span>Total Spending:</span> <span class="bold" id="non-gst-total-spending">0</span></p>
+                            <p><span>Last Order Date:</span> <span class="bold" id="non-gst-last-order-date">N/A</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <!-- GST Purchase History -->
+                <h2>GST Purchase History</h2>
+                <table class="order-table" id="gst-order-history">
+                    <thead>
+                        <tr>
+                            <th>Invoice Number</th>
+                            <th>Date</th>
+                            <th>Items</th>
+                            <th>Total Quantity</th>
+                            <th>Total Amount</th>
+                            <th>GST Amount</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- GST Order rows will be dynamically inserted here -->
+                    </tbody>
+                </table>
+
+                <!-- Non-GST Purchase History -->
+                <h2>Non-GST Purchase History</h2>
+                <table class="order-table" id="non-gst-order-history">
+                    <thead>
+                        <tr>
+                            <th>Invoice Number</th>
+                            <th>Date</th>
+                            <th>Items</th>
+                            <th>Total Quantity</th>
+                            <th>Total Amount</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Non-GST Order rows will be dynamically inserted here -->
+                    </tbody>
+                </table>
+
+                <!-- Optional: Chart container (if needed) -->
+                <div class="chart-container">
+                    <canvas id="salesChart"></canvas>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.0/dist/sweetalert2.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        async function fetchCustomerReport(customerId) {
+            try {
+                const response = await fetch(`/customer-report-per/${customerId}`);
+                const customerData = await response.json();
+
+                console.log("Fetched Data:", customerData);
+
+                if (!customerData.customer) {
+                    alert("No customer data found!");
+                    return;
+                }
+
+                const { customer, gstSummary, nonGstSummary, gstBills, nonGstBills } = customerData;
+
+                // Populate Customer Info
+                document.getElementById('customer-id').textContent = customer.customerId || "N/A";
+
+                // Assuming customer name is already fetched and set into the element
+                const customerName = customer.customerName || "N/A";
+                document.getElementById('customer-name').textContent = capitalizeFirstLetterOfEachWord(customerName);
+
+                document.getElementById('customer-name-1').textContent = capitalizeFirstLetterOfEachWord(customerName) || "N/A";
+                document.getElementById('customer-email').textContent = customer.email || "N/A";
+                document.getElementById('customer-phone').textContent = customer.phone || "N/A";
+                document.getElementById('customer-address').textContent = customer.street || "N/A";
+                document.getElementById('customer-city').textContent = customer.city || "N/A";
+                document.getElementById('customer-district').textContent = customer.district || "N/A";
+                document.getElementById('customer-state').textContent = customer.state || "N/A";
+                document.getElementById('customer-pincode').textContent = customer.pincode || "N/A";
+
+
+                // Populate GST Summary
+                document.getElementById('gst-total-spending').textContent = gstSummary.totalSales ? `₹${gstSummary.totalSales.toFixed(2)}` : '₹0.00';
+                document.getElementById('gst-total-gst').textContent = gstSummary.totalGst ? `₹${gstSummary.totalGst.toFixed(2)}` : '₹0.00';
+                document.getElementById('gst-last-order-date').textContent = gstSummary.lastOrderDate ? formatDate(gstSummary.lastOrderDate) : "N/A";
+
+                // Populate Non-GST Summary
+                document.getElementById('non-gst-total-spending').textContent = nonGstSummary.totalSales ? `₹${nonGstSummary.totalSales.toFixed(2)}` : '₹0.00';
+                document.getElementById('non-gst-last-order-date').textContent = nonGstSummary.lastOrderDate ? formatDate(nonGstSummary.lastOrderDate) : "N/A";
+
+                // Populate GST Order History
+                const gstOrdersTableBody = document.getElementById('gst-order-history').getElementsByTagName('tbody')[0];
+                gstOrdersTableBody.innerHTML = ''; // Clear previous content
+
+                if (gstBills.length > 0) {
+                    gstBills.forEach(bill => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                    <td>${bill.invoiceNo || 'N/A'}</td>
+                    <td>${bill.createdAt ? formatDate(bill.createdAt) : 'N/A'}</td>
+                    <td>
+                        ${bill.products && bill.products.length > 0
+                                ? bill.products.map(product => product.productName).join(', ')
+                                : 'N/A'
+                            }
+                    </td>
+                    <td>${bill.totalQuantity || '0.00'}</td>
+                    <td>₹${bill.totalAmount ? bill.totalAmount.toFixed(2) : '0.00'}</td>
+                    <td>₹${bill.cgstAmount + bill.sgstAmount || '0.00'}</td>
+                    <td>${bill.status || 'N/A'}</td>
+                `;
+                        gstOrdersTableBody.appendChild(row);
+                    });
+                } else {
+                    gstOrdersTableBody.innerHTML = '<tr><td colspan="6">No GST orders found</td></tr>';
+                }
+
+                // Populate Non-GST Order History
+                const nonGstOrdersTableBody = document.getElementById('non-gst-order-history').getElementsByTagName('tbody')[0];
+                nonGstOrdersTableBody.innerHTML = ''; // Clear previous content
+
+                if (nonGstBills.length > 0) {
+                    nonGstBills.forEach(bill => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                    <td>${bill.invoiceNo || 'N/A'}</td>
+                    <td>${bill.createdAt ? formatDate(bill.createdAt) : 'N/A'}</td>
+                    <td>
+                        ${bill.products && bill.products.length > 0
+                                ? bill.products.map(product => product.productName).join(', ')
+                                : 'N/A'
+                            }
+                    </td>
+                    <td>${bill.totalQuantity || '0.00'}</td>
+                    <td>₹${bill.totalAmount ? bill.totalAmount.toFixed(2) : '0.00'}</td>
+                    <td>${bill.status || 'N/A'}</td>
+                `;
+                        nonGstOrdersTableBody.appendChild(row);
+                    });
+                } else {
+                    nonGstOrdersTableBody.innerHTML = '<tr><td colspan="5">No Non-GST orders found</td></tr>';
+                }
+
+                // Populate Chart
+                const chartLabels = ['GST Sales', 'Non-GST Sales'];
+                const chartData = [
+                    gstSummary.totalSales || 0,
+                    nonGstSummary.totalSales || 0
+                ];
+
+                const ctx = document.getElementById('salesChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: chartLabels,
+                        datasets: [{
+                            label: 'Total Sales (₹)',
+                            data: chartData,
+                            backgroundColor: '#7FA1C3', // Lighter blue
+                            borderColor: '#6482AD', // Darker blue
+                            fill: true,
+                            borderWidth: 2,
+                            tension: 0.4,
+                            pointRadius: 5,
+                            pointBackgroundColor: '#6482AD',
+                            pointBorderColor: '#fff',
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                backgroundColor: '#6482AD',
+                                titleColor: '#fff',
+                                bodyColor: '#fff',
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Amount (₹)',
+                                    color: '#6482AD',
+                                },
+                                grid: {
+                                    color: '#E2DAD6',
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    color: '#E2DAD6',
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error("Error fetching report:", error);
+                alert("Error fetching data, please try again later.");
+            }
+        }
+
+
+
+        // Utility function to format the date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+        }
+
+        // Wait for the DOM content to load
+        document.addEventListener('DOMContentLoaded', function () {
+            let customerId;
+
+            // Check if billId is in the query string
+            const urlParams = new URLSearchParams(window.location.search);
+            customerId = urlParams.get('customerId');
+
+            // If not in the query string, try extracting from the path
+            if (!customerId) {
+                const path = window.location.pathname;
+                const parts = path.split('/');
+                customerId = parts[2]; // Assuming the billId is the third segment
+            }
+
+            if (!customerId) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No Bill ID found in the URL.',
+                });
+                return;
+            }
+
+            fetchCustomerReport(customerId);
+        });
+
+        async function printOrDownloadReport() {
+            const container = document.querySelector('.customer-report-print');
+            const canvas = await html2canvas(container, { scale: 2 });
+            const imgData = canvas.toDataURL('image/png');
+
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const imgProps = pdf.getImageProperties(imgData);
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+
+            // Get customer name and ID to include in the filename
+            const customerName = document.getElementById('customer-name').textContent || 'Customer';
+            const customerId = document.getElementById('customer-id').textContent || 'N/A';
+
+            // File name for the report
+            const fileName = `${customerName.replace(/\s+/g, '_')}_ID_${customerId}_Report.pdf`;
+
+            // Download Confirmation
+            Swal.fire({
+                title: 'Download the report?',
+                text: 'You can download the report by clicking below.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: '<i class="fas fa-download"></i> Download',
+                cancelButtonText: '<i class="fas fa-times"></i> Cancel',
+                customClass: {
+                    popup: 'custom-popup',
+                    title: 'popup-title',
+                    confirmButton: 'popup-confirm-button',
+                    cancelButton: 'popup-cancel-button',
+                },
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    pdf.save(fileName); // Save the PDF with the customer name and ID in the filename
+                }
+            });
+        }
+    </script>
+    <script>
+        // Function to capitalize the first letter of each word
+        function capitalizeFirstLetterOfEachWord(str) {
+            return str.replace(/\b\w/g, char => char.toUpperCase());
+        }
+    </script>
+</body>
+
+</html>

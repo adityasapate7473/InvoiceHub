@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Products</title>
+    <link rel="stylesheet" href="/css/navbar.css">
+    <link rel="stylesheet" href="/css/product-list.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("images/background.jpg") no-repeat center center fixed;
+            background-size: cover;
+            opacity: 0.1;
+            /* Adjust this value to set the opacity (0.1 to 1) */
+            z-index: -1;
+            /* Ensure it stays behind the content */
+        }
+    </style>
+</head>
+
+<body>
+    {{> navbar}}
+    <div class="container">
+        <button class="product-list-btn" onclick="window.location.href='/register-product'">Product
+            Registration</button>
+        <h1>Your Products</h1>
+        <table id="productTable">
+            <thead>
+                <tr>
+                    <th>Product ID</th>
+                    <th>Product Name</th>
+                    <th>Item Code</th>
+                    <th>HSN Code</th>
+                    <th>Rate</th>
+                    <th>Created At</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Dynamic rows will be inserted here -->
+            </tbody>
+        </table>
+        <p class="no-products" id="noProductsMessage" style="display: none;">No products found for this user.</p>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // Fetch and display user-specific products
+        async function fetchUserProducts() {
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Authentication Error',
+                        text: 'Authentication token missing. Please log in.',
+                    });
+                    return;
+                }
+
+                const response = await fetch('/get-products', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                const data = await response.json();
+                const productTableBody = document.querySelector('#productTable tbody');
+                const noProductsMessage = document.getElementById('noProductsMessage');
+
+                if (data.success) {
+                    if (data.products.length > 0) {
+                        productTableBody.innerHTML = '';
+                        noProductsMessage.style.display = 'none';
+
+                        data.products.forEach(product => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                            <td>${product.productId}</td>
+                            <td>${product.productName}</td>
+                            <td>${product.itemCode}</td>
+                            <td>${product.hsnCode}</td>
+                            <td>${product.rate}</td>
+                            <td>${new Date(product.createdAt).toLocaleString()}</td>
+                            <td>
+                                <button onclick="editProduct('${product._id}')">Edit</button>
+                                <button onclick="deleteProduct('${product._id}')">Delete</button>
+                            </td>
+                        `;
+                            productTableBody.appendChild(row);
+                        });
+
+                    } else {
+                        productTableBody.innerHTML = '';
+                        noProductsMessage.style.display = 'block';
+                    }
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message || 'Failed to fetch products.',
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching products:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred while fetching products.',
+                });
+            }
+        }
+
+        // Redirect to the edit page with the product ID
+        function editProduct(productId) {
+            Swal.fire({
+                icon: 'info',
+                title: 'Redirecting...',
+                text: `Redirecting to edit page for product ID: ${productId}`,
+                timer: 1500,
+                showConfirmButton: false,
+            }).then(() => {
+                window.location.href = `/edit-product?productId=${productId}`;
+            });
+        }
+
+        // Delete product after confirmation
+        async function deleteProduct(productId) {
+            const result = await Swal.fire({
+                title: 'Are you sure?',
+                text: 'You won\'t be able to revert this!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!',
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    const token = localStorage.getItem('authToken');
+
+                    const response = await fetch(`/delete-product/${productId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                        },
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Deleted!',
+                            text: 'Your product has been deleted.',
+                        });
+                        fetchUserProducts(); // Refresh the list after deletion
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to delete the product.',
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error deleting product:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An error occurred while deleting the product.',
+                    });
+                }
+            }
+        }
+
+        // Fetch products when the page loads
+        window.onload = fetchUserProducts;
+    </script>
+
+</body>
+
+</html>
